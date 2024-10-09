@@ -2,11 +2,28 @@
 
 namespace ARMS_API.Controllers.Admission_Council
 {
-    public class AdmissionInformationController : Controller
+    public class AdmissionInformationController : ControllerBase
     {
-        public IActionResult Index()
+        [HttpGet("get-admission-information")]
+        public async Task<IActionResult> GetAdmissionInformation()
         {
-            return View();
+            return Ok();
         }
+        [HttpGet("get-admission-information-by-id")]
+        public async Task<IActionResult> GetAdmissionInformationById()
+        {
+            return Ok();
+        }
+        [HttpPost("add-admission-information")]
+        public async Task<IActionResult> AddAdmissionTime()
+        {
+            return Ok();
+        }
+        [HttpPut("update-admission-information")]
+        public async Task<IActionResult> UpdateAdmissionInformation()
+        {
+            return Ok();
+        }
+
     }
 }
