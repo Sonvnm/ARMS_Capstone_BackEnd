@@ -14,7 +14,11 @@ namespace ARMS_API.Controllers.Admin
         {
             return Ok(Ok());
         }
-        
+        [HttpGet("reset-password/{id}")]
+        public async Task<IActionResult> ResetPassword(Guid id)
+        {
+            return Ok(Ok());
+        }
         [HttpGet("get-accounts-student")]
         public async Task<IActionResult> GetAccountsRequest()
         {
