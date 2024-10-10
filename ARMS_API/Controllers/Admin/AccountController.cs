@@ -2,6 +2,8 @@
 
 namespace ARMS_API.Controllers.Admin
 {
+    [Route("api/[controller]")]
+    [ApiController]
     public class AccountController : ControllerBase
     {
         [HttpGet("get-accounts")]
