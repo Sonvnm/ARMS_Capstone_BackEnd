@@ -20,6 +20,5 @@ namespace ARMS_API.Controllers.Admission_Council
         {
             return Ok();
         }
-        
     }
 }
