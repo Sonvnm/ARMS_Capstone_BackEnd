@@ -36,6 +36,15 @@ namespace ARMS_API.Controllers
         {
             return Ok();
         }
-
+        [HttpGet("get-whychooseus")]
+        public async Task<IActionResult> GetWhyChooseUs()
+        {
+            return Ok();
+        }
+        [HttpGet("get-trainingmotto")]
+        public async Task<IActionResult> GetTrainingMotto()
+        {
+            return Ok();
+        }
     }
 }
