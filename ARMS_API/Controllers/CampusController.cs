@@ -2,10 +2,11 @@
 
 namespace ARMS_API.Controllers
 {
+    [Route("api/[controller]")]
+    [ApiController]
     public class CampusController : Controller
     {
-        [Route("api/[controller]")]
-        [ApiController]
+        
         [HttpGet("count-campus")]
         public async Task<IActionResult> CountCampus()
         {
