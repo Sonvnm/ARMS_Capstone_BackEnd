@@ -9,9 +9,8 @@ namespace Data.Models
     public class TypeAdmission
     {
         public string MajorID { get; set; }
-        public int AdmissionTimeId { get; set; }
         public TypeOfDiploma TypeDiploma { get; set; }
         public TypeOfTranscript? TypeOfTranscript { get; set; }
-        public virtual MajorAdmission MajorAdmission { get; set; }
+        public virtual Major Major { get; set; }
     }
 }

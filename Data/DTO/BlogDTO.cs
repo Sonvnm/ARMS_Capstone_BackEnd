@@ -13,7 +13,6 @@ namespace Data.DTO
         public string Title { get; set; }
         public string Description { get; set; }
         public string Content { get; set; }
-        public string? Img { get; set; }
         public DateTime DateCreate { get; set; }
         public BlogCategoryDTO? BlogCategory { get; set; }
     }
@@ -21,7 +20,6 @@ namespace Data.DTO
     {
         public int BlogId { get; set; }
         public string Title { get; set; }
-        public string? Img { get; set; }
         public string Description { get; set; }
         public string Content { get; set; }
         public int BlogCategoryId { get; set; }

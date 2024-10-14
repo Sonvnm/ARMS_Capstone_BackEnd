@@ -14,15 +14,16 @@ namespace Data.Configurations
         public void Configure(EntityTypeBuilder<AdmissionTime> builder)
         {
             builder.ToTable(nameof(AdmissionTime));
-            builder.HasKey(x=>x.AdmissionTimeId);
-            builder.Property(x => x.AdmissionTimeName).IsRequired();
+            builder.HasKey(x=>x.AIId);
+            builder.Property(x => x.AdmissionInformationName).IsRequired();
             builder.Property(x => x.StartRegister).IsRequired();
             builder.Property(x => x.EndRegister).IsRequired();
             builder.Property(x => x.StartAdmission).IsRequired();
             builder.Property(x => x.EndAdmission).IsRequired();
+            builder.Property(x => x.CampusId).IsRequired();
 
             #region config relation
-            builder.HasOne(x => x.AdmissionInformation).WithMany(x => x.AdmissionTimes).HasForeignKey(x => x.AdmissionInformationID).OnDelete(DeleteBehavior.NoAction);
+            builder.HasOne(x => x.Campus).WithMany(x => x.AdmissionTimes).HasForeignKey(x => x.CampusId).OnDelete(DeleteBehavior.NoAction);
             #endregion
         }
     }
