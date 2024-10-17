@@ -7,6 +7,7 @@ using FirebaseAdmin.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 namespace ARMS_API.Controllers
@@ -28,7 +29,64 @@ namespace ARMS_API.Controllers
         [Route("login")]
         public async Task<IActionResult> Login([FromBody] LoginDTO model)
         {
-            return Ok();
+            try
+            {
+                if (model == null || model.username == null || model.CampusId == null)
+                {
+                    throw new Exception("Không nhận được thông tin người dùng");
+                }
+                //var user = await _userManager.FindByEmailAsync(model.email);
+                var user = await _userManager.Users
+                                        .Where(user => user.CampusId == model.CampusId && user.UserName == model.username && user.isAccountActive == true)
+                                        .FirstOrDefaultAsync();
+                if (user == null)
+                {
+                    throw new Exception("Tài khoản của bạn không tồn tại trong campus hiện tại");
+                }
+
+                //login by password
+                if (model.password != null)
+                {
+                    if (user != null && !await _userManager.CheckPasswordAsync(user, model.password))
+                    {
+                        return Unauthorized();
+                    }
+                }
+                var userRoles = await _userManager.GetRolesAsync(user);
+                var role = userRoles.FirstOrDefault();
+                var authClaims = new List<Claim>
+                        {
+                            new Claim(ClaimTypes.Name, user.Fullname),
+                            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                        };
+
+                foreach (var userRole in userRoles)
+                {
+                    authClaims.Add(new Claim(ClaimTypes.Role, userRole));
+                }
+
+                if (!String.IsNullOrEmpty(user.AvatarURL))
+                {
+                    authClaims.Add(new Claim("AvatarUrl", user.AvatarURL));
+                }
+                var Bear = GetToken(authClaims);
+
+                ResponseLogin respone = new ResponseLogin();
+                respone.Bear = new JwtSecurityTokenHandler().WriteToken(Bear);
+                respone.Expiration = Bear.ValidTo;
+                respone.CampusId = model.CampusId;
+                respone.Role = role;
+                return Ok(respone);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ResponseViewModel
+                {
+                    Status = false,
+                    Message = "Đã xảy ra lỗi trong quá trình xử lý"
+                });
+            }
         }
         [HttpPost("gg/login-with-google")]
         [AllowAnonymous]
