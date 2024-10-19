@@ -12,7 +12,7 @@ namespace ARMS_API.Controllers.Admin
 {
     [Route("api/admin/[controller]")]
     [ApiController]
-   // [Authorize(Roles ="Admin")]
+    [Authorize(Roles ="Admin")]
     public class MajorController : ControllerBase
     {
         private IMajorService _majorService;
@@ -30,7 +30,7 @@ namespace ARMS_API.Controllers.Admin
             try
             {
 
-                List<Major> response = await _majorService.GetMajors(campus);
+                List<Major> response = await _majorService.GetMajorsAdmin(campus);
 
                 List<Major_Admin_DTO> responeResult = _mapper.Map<List<Major_Admin_DTO>>(response);
                 return Ok(responeResult);
@@ -96,7 +96,7 @@ namespace ARMS_API.Controllers.Admin
             try
             {
 
-                Major response = await _majorService.GetMajor(MajorId);
+                Major response = await _majorService.GetMajorDetail(MajorId);
                 Major_Admin_DTO responeResult = _mapper.Map<Major_Admin_DTO>(response);
                 return Ok(responeResult);
 

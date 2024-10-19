@@ -8,8 +8,7 @@ namespace Data.DTO
 {
     public class LoginDTO
     {
-        public string CampusId { get; set; } = "Hanoi";
-        public string username { get; set; }
-        public string? password { get; set; }
+        public string email { get; set; }
+        public string password { get; set; }
     }
 }

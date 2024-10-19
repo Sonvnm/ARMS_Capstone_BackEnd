@@ -34,14 +34,9 @@ namespace ARMS_API.Controllers
             }
             catch (Exception)
             {
-                return BadRequest(new ResponseViewModel
-                {
-                    Status = false,
-                    Message = "Đã xảy ra lỗi! Vui lòng thử lại sau!"
-                });
+                return BadRequest();
             }
         }
-
         [HttpGet("get-blogs")]
         public async Task<IActionResult> GetBlogs(string? CampusId, string? Search, int CurrentPage, int? CategoryID)
         {
@@ -61,18 +56,19 @@ namespace ARMS_API.Controllers
                     string searchTerm = _userInput.NormalizeText(Search);
                     response = response
                                 .Where(blog =>
-                                {
-                                    string title = _userInput.NormalizeText(blog?.Title ?? "");
-                                    string description = _userInput.NormalizeText(blog?.Description ?? "");
-                                    return title.Contains(searchTerm) || description.Contains(searchTerm);
-                                })
+                                    blog != null &&
+                                    !string.IsNullOrEmpty(blog.Title) &&
+                                    !string.IsNullOrEmpty(blog.Description) &&
+                                    (_userInput.NormalizeText(blog.Title).Contains(searchTerm) ||
+                                     _userInput.NormalizeText(blog.Description).Contains(searchTerm)
+                                    )
+                                )
                                 .ToList();
-                }
-
-                if (CategoryID != 0 && CategoryID != null)
+                };
+                if (CategoryID != 0 && CategoryID!=null)
                 {
                     response = response
-                                .Where(blog => blog.BlogCategoryId == CategoryID)
+                                .Where(blog =>blog.BlogCategoryId == CategoryID)
                                 .ToList();
                 };
 
@@ -86,16 +82,12 @@ namespace ARMS_API.Controllers
                 // Map to BlogDTO
                 List<BlogDTO> responseResult = _mapper.Map<List<BlogDTO>>(blogs);
                 result.Item = responseResult;
-                result.TotalItems = response.Count;
+
                 return Ok(result);
             }
             catch (Exception ex)
             {
-                return BadRequest(new ResponseViewModel
-                {
-                    Status = false,
-                    Message = "Đã xảy ra lỗi! Vui lòng thử lại sau!"
-                });
+                return BadRequest(ex.Message);
             }
         }
         [HttpGet("get-blog")]
@@ -110,11 +102,7 @@ namespace ARMS_API.Controllers
             }
             catch (Exception)
             {
-                return BadRequest(new ResponseViewModel
-                {
-                    Status = false,
-                    Message = "Đã xảy ra lỗi! Vui lòng thử lại sau!"
-                });
+                return BadRequest();
             }
         }
         [HttpGet("get-top5blogs")]
@@ -134,11 +122,7 @@ namespace ARMS_API.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(new ResponseViewModel
-                {
-                    Status = false,
-                    Message = "Đã xảy ra lỗi! Vui lòng thử lại sau!"
-                });
+                return BadRequest(ex.Message);
             }
         }
     }
