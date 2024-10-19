@@ -12,7 +12,9 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace ARMS_API.Controllers
 {
-    public class AuthenticationController : Controller
+    [Route("api/[controller]")]
+    [ApiController]
+    public class AuthenticationController : ControllerBase
     {
         private readonly UserManager<Account> _userManager;
         private readonly RoleManager<IdentityRole<Guid>> _roleManager;
