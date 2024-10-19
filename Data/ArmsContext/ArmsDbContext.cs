@@ -48,16 +48,11 @@ namespace Data.ArmsContext
             modelBuilder.ApplyConfiguration(new BlogCategoryConfiguration());
             modelBuilder.ApplyConfiguration(new BlogConfiguration());
             modelBuilder.ApplyConfiguration(new StudentConsultationConfiguration());
+            modelBuilder.ApplyConfiguration(new TypeAdmissionConfiguration());
             modelBuilder.ApplyConfiguration(new AdmissionTimeConfiguration());
             modelBuilder.ApplyConfiguration(new StudentProfileConfiguration());
             modelBuilder.ApplyConfiguration(new AdmissionInformationConfiguration());
-            modelBuilder.ApplyConfiguration(new RequestConfiguration());
-            modelBuilder.ApplyConfiguration(new PriorityDetailConfiguration());
-            modelBuilder.ApplyConfiguration(new AcademicTranscriptConfiguration());
-            modelBuilder.ApplyConfiguration(new PayFeeAdmissionConfiguration());
-            modelBuilder.ApplyConfiguration(new MajorAdmissionConfiguration());
-            modelBuilder.ApplyConfiguration(new TypeAdmissionConfiguration());
-            modelBuilder.ApplyConfiguration(new RequestNotificationConfiguration());
+            modelBuilder.ApplyConfiguration(new RequestChangeMajorConfiguration());
 
             modelBuilder.Entity<IdentityUserLogin<Guid>>(entity =>
             {
@@ -116,13 +111,11 @@ namespace Data.ArmsContext
             new SubjectSeeder(modelBuilder).Seed();
             new BlogSeeder(modelBuilder).Seed();
             new StudentConsultationSeeder(modelBuilder).Seed();
-            new AdmissionInformationSeeder(modelBuilder).Seed();
+            new TypeAdmissionSeeder(modelBuilder).Seed();
             new AdmissionTimeSeeder(modelBuilder).Seed();
+            new AdmissionInformationSeeder(modelBuilder).Seed();
             new StudentProfileSeeder(modelBuilder).Seed();
             new RequestChangeMajorSeeder(modelBuilder).Seed();
-            new PriorityDetailSeeder(modelBuilder).Seed();
-            new MajorAdmissionSeeder(modelBuilder).Seed();
-            new TypeAdmissionSeeder(modelBuilder).Seed();
         }
         #region DbSet
         public DbSet<Account> Accounts { get; set; }
@@ -133,16 +126,12 @@ namespace Data.ArmsContext
         public DbSet<BlogCategory> BlogCategories { get; set; }
         public DbSet<Blog> Blogs { get; set; }
         public DbSet<StudentConsultation> StudentConsultations { get; set; }
+        public DbSet<TypeAdmission> TypeAdmissions { get; set; }
         public DbSet<AdmissionTime> AdmissionTimes { get; set; }
         public DbSet<StudentProfile> StudentProfiles { get; set; }
         public DbSet<AdmissionInformation> AdmissionInformations { get; set; }
-        public DbSet<Request> Requests { get; set; }
-        public DbSet<PriorityDetail> PriorityDetails { get; set; }
-        public DbSet<AcademicTranscript> AcademicTranscripts { get; set; }
-        public DbSet<PayFeeAdmission> PayFeeAdmissions { get; set; }
-        public DbSet<MajorAdmission> MajorAdmissions { get; set; }
-        public DbSet<TypeAdmission> TypeAdmissions { get; set; }
-        public DbSet<RequestNotification> RequestNotifications { get; set; }
+        public DbSet<RequestChangeMajor> RequestChangeMajors { get; set; }
+
         #endregion
     }
 
