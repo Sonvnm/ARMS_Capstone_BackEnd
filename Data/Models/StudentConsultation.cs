@@ -16,12 +16,11 @@ namespace Data.Models
         public StatusConsultation Status { get; set; }
         public DateTime DateReceive { get; set; }
         public string? Notes { get; set; }
-        public Guid? CreateBy { get; set; }
+
         //FK
         public string CampusId { get; set; }
         public string MajorID { get; set; }
         public virtual Campus? Campus { get; set; }
         public virtual Major? Major { get; set; }
-        public virtual Account? Account { get; set; }
     }
 }
