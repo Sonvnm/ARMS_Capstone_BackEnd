@@ -17,13 +17,13 @@ namespace ARMS_API.Controllers
         private readonly UserManager<Account> _userManager;
         private readonly RoleManager<IdentityRole<Guid>> _roleManager;
         private readonly IConfiguration _configuration;
-        
-        public AuthenticationController(UserManager<Account> userManager, RoleManager<IdentityRole<Guid>> roleManager, IConfiguration configuration)
+        private readonly FirebaseService _firebaseService;
+        public AuthenticationController(UserManager<Account> userManager, RoleManager<IdentityRole<Guid>> roleManager, IConfiguration configuration, FirebaseService firebaseService)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _configuration = configuration;
-            
+            _firebaseService = firebaseService;
         }
         [HttpPost]
         [Route("login")]
@@ -90,9 +90,69 @@ namespace ARMS_API.Controllers
         }
         [HttpPost("gg/login-with-google")]
         [AllowAnonymous]
-        public async Task<IActionResult> LoginWithGoogle()
+        public async Task<IActionResult> LoginWithGoogle([FromBody] GGLoginViewModel GGLoginViewModel) 
         {
-            return Ok();
+            try
+            {
+                var payload = await VerifyGoogleTokenWithFirebase(GGLoginViewModel.idToken);
+                if (payload == null)
+                {
+                    return Unauthorized(new ResponseViewModel
+                    {
+                        Status = false,
+                        Message = "Token không hợp lệ"
+                    });
+                }
+
+                var uid = payload.Uid;
+                var userRecord = await FirebaseAuth.DefaultInstance.GetUserAsync(uid);
+                var email = userRecord.Email;
+                // Bước 2: Kiểm tra email trong cơ sở dữ liệu
+                var user = await _userManager.Users
+                    .Where(u => u.Email == email && u.isAccountActive)
+                    .FirstOrDefaultAsync();
+
+                if (user == null)
+                {
+                    return Unauthorized(new ResponseViewModel
+                    {
+                        Status = false,
+                        Message = "Email không tồn tại trong hệ thống hoặc tài khoản đã bị vô hiệu hóa."
+                    });
+                }
+
+                // Bước 3: Tạo JWT Token
+                var userRoles = await _userManager.GetRolesAsync(user);
+                var authClaims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.Name, user.Fullname),
+                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                    new Claim(ClaimTypes.Email, user.Email),
+                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+                };
+
+                foreach (var role in userRoles)
+                {
+                    authClaims.Add(new Claim(ClaimTypes.Role, role));
+                }
+
+                var token = GetToken(authClaims);
+
+                return Ok(new ResponseLogin
+                {
+                    Bear = new JwtSecurityTokenHandler().WriteToken(token),
+                    Expiration = token.ValidTo,
+                    Role = userRoles.FirstOrDefault()
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ResponseViewModel
+                {
+                    Status = false,
+                    Message = "Đã xảy ra lỗi trong quá trình xử lý"
+                });
+            }
         }
         private async Task<FirebaseAdmin.Auth.FirebaseToken> VerifyGoogleTokenWithFirebase(string idToken)
         {
