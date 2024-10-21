@@ -25,26 +25,16 @@ namespace ARMS_API.Controllers
             try
             {
 
-                List<MajorAdmission> response = await _majorService.GetMajorsIsVocationalSchool(campus);
-                if (response == null)
-                {
-                    return BadRequest(new ResponseViewModel
-                    {
-                        Status = false,
-                        Message = "Không có ngành trung cấp nào đang tuyển!"
-                    });
-                }
+                List<Major> response = await _majorService.GetMajorsIsVocationalSchool(campus);
+
                 List<MajorDTO> responeResult = _mapper.Map<List<MajorDTO>>(response);
                 return Ok(responeResult);
 
             }
             catch (Exception)
             {
-                return BadRequest(new ResponseViewModel
-                {
-                    Status = false,
-                    Message = "Đã xảy ra lỗi! Vui lòng thử lại sau!"
-                });
+
+                return BadRequest();
             }
         }
         [HttpGet("get-majors-college")]
@@ -53,54 +43,16 @@ namespace ARMS_API.Controllers
             try
             {
 
-                List<MajorAdmission> response = await _majorService.GetMajorsIsCollege(campus);
-                if (response == null)
-                {
-                    return BadRequest(new ResponseViewModel
-                    {
-                        Status = false,
-                        Message = "Không có ngành cao đẳng nào đang tuyển!"
-                    });
-                }
+                List<Major> response = await _majorService.GetMajorsIsCollege(campus);
+
                 List<MajorDTO> responeResult = _mapper.Map<List<MajorDTO>>(response);
                 return Ok(responeResult);
 
             }
             catch (Exception)
             {
-                return BadRequest(new ResponseViewModel
-                {
-                    Status = false,
-                    Message = "Đã xảy ra lỗi! Vui lòng thử lại sau!"
-                });
-            }
-        }
-        [HttpGet("get-majors-college-for-vocational-school")]
-        public async Task<IActionResult> GetMajorsCollegeForVocationalSchool(string campus)
-        {
-            try
-            {
 
-                List<MajorAdmission> response = await _majorService.GetMajorsIsCollegeForVocationalSchool(campus);
-                if (response == null)
-                {
-                    return BadRequest(new ResponseViewModel
-                    {
-                        Status = false,
-                        Message = "Không có ngành xét tuyển liên thông nào!"
-                    });
-                }
-                List<MajorDTO> responeResult = _mapper.Map<List<MajorDTO>>(response);
-                return Ok(responeResult);
-
-            }
-            catch (Exception)
-            {
-                return BadRequest(new ResponseViewModel
-                {
-                    Status = false,
-                    Message = "Đã xảy ra lỗi! Vui lòng thử lại sau!"
-                });
+                return BadRequest();
             }
         }
         [HttpGet("get-major-details")]
@@ -109,26 +61,15 @@ namespace ARMS_API.Controllers
             try
             {
 
-                MajorAdmission response = await _majorService.GetMajorDetail(MajorId);
-                if (response == null)
-                {
-                    return NotFound(new ResponseViewModel
-                    {
-                        Status = false,
-                        Message = "Không tìm thấy ngành học!"
-                    });
-                }
+                Major response = await _majorService.GetMajorDetail(MajorId);
                 MajorDTO responeResult = _mapper.Map<MajorDTO>(response);
                 return Ok(responeResult);
 
             }
             catch (Exception)
             {
-                return BadRequest(new ResponseViewModel
-                {
-                    Status = false,
-                    Message = "Đã xảy ra lỗi! Vui lòng thử lại sau!"
-                });
+
+                return BadRequest();
             }
         }
     }
