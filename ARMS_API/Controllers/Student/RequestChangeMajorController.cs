@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Service.BlogSer;
 using Service.RequestChangeMajorSer;
 using static Google.Apis.Requests.BatchRequest;
+
 namespace ARMS_API.Controllers.Student
 {
     [Route("api/Student/[controller]")]
@@ -35,9 +36,11 @@ namespace ARMS_API.Controllers.Student
                 List<RequestChangeMajor> request = await _requestChangeMajorService.GetRequestChangeMajorsByID(Guid.Parse(userId));
                 List<RequestChangeMajorDTO> responeResult = _mapper.Map<List<RequestChangeMajorDTO>>(request);
                 return Ok(responeResult);
+
             }
             catch (Exception)
             {
+
                 return BadRequest();
             }
         }
