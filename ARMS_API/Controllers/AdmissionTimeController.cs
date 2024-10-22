@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 
 namespace ARMS_API.Controllers
 {
@@ -6,6 +7,8 @@ namespace ARMS_API.Controllers
     [ApiController]
     public class AdmissionTimeController : Controller
     {
+        private IAdmissionTimeService _admissionTimeService;
+        private readonly IMapper _mapper;
         public AdmissionTimeController()
         {
 
