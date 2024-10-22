@@ -5,6 +5,7 @@ using Data.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Service.AccountSer;
 using Service.BlogSer;
 using Service.RequestChangeMajorSer;
 using static Google.Apis.Requests.BatchRequest;
@@ -12,37 +13,98 @@ using static Google.Apis.Requests.BatchRequest;
 namespace ARMS_API.Controllers.Student
 {
     [Route("api/Student/[controller]")]
-    [ApiController]
-    [Authorize(Roles = "Student")]
-    public class RequestChangeMajorController : ControllerBase
+[ApiController]
+[Authorize(Roles = "Student")]
+public class RequestChangeMajorController : BaseController
+{
+    private readonly IRequestService _requestChangeMajorService;
+
+    public RequestChangeMajorController(
+        IRequestService requestChangeMajorService,
+        IMapper mapper,
+        IAccountService accountService) : base(accountService, mapper)
     {
-        private IRequestChangeMajorService _requestChangeMajorService;
-        private readonly IMapper _mapper;
-        public RequestChangeMajorController(IRequestChangeMajorService requestChangeMajorService, IMapper mapper)
+        _requestChangeMajorService = requestChangeMajorService;
+    }
+
+    [HttpGet("get-request-change-major")]
+    public async Task<IActionResult> GetRequestChangeMajor()
+    {
+        try
         {
-            _requestChangeMajorService = requestChangeMajorService;
-            _mapper = mapper;
+            var userId = GetUserId();
+            var requests = await _requestChangeMajorService.GetRequestChangeMajorsByID(userId);
+            var response = _mapper.Map<List<RequestChangeMajorDTO>>(requests);
+            return Ok(response);
         }
-        [HttpGet("get-request-change-major")]
-        public async Task<IActionResult> GetRequestChangeMajor()
+        catch (UnauthorizedAccessException ex)
         {
-            try
+            return Unauthorized(ex.Message);
+        }
+        catch (Exception)
+        {
+            return BadRequest(new ResponseViewModel
             {
-                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-                if (string.IsNullOrEmpty(userId))
-                {
-                    return Unauthorized("Không tìm thấy ID người dùng!");
-                }
-                List<RequestChangeMajor> request = await _requestChangeMajorService.GetRequestChangeMajorsByID(Guid.Parse(userId));
-                List<RequestChangeMajorDTO> responeResult = _mapper.Map<List<RequestChangeMajorDTO>>(request);
-                return Ok(responeResult);
-
-            }
-            catch (Exception)
-            {
-
-                return BadRequest();
-            }
+                Status = false,
+                Message = "Đã xảy ra lỗi! Vui lòng thử lại sau!"
+            });
         }
     }
+
+    [HttpPost("add-request-change-major")]
+    public async Task<IActionResult> AddRequestChangeMajor([FromBody] RequestChangeMajor_Student_DTO dto)
+    {
+        try
+        {
+            if (dto == null)
+            {
+                return BadRequest(new ResponseViewModel
+                {
+                    Status = false,
+                    Message = "Không nhận được dữ liệu yêu cầu!"
+                });
+            }
+
+            var userId = GetUserId();
+            var account = await _accountService.GetAccountByUserId(userId);
+            if (account == null)
+            {
+                return BadRequest(new ResponseViewModel
+                {
+                    Status = false,
+                    Message = "Không tìm thấy tài khoản người dùng!"
+                });
+            }
+
+            var request = _mapper.Map<Request>(dto);
+            request.Status = TypeofRequestChangeMajor.Inprocess;
+            request.AccountId = userId;
+            request.MajorOld = account.MajorId;
+            request.CampusId = account.CampusId;
+            request.isRequestChangeMajor = true;
+            request.DateRequest = DateTime.UtcNow;
+
+            await _requestChangeMajorService.AddNewRequest(request);
+
+            return Ok(new ResponseViewModel
+            {
+                Status = true,
+                Message = "Gửi yêu cầu thành công!"
+            });
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Unauthorized(ex.Message);
+        }
+        catch (Exception)
+        {
+            return BadRequest(new ResponseViewModel
+            {
+                Status = false,
+                Message = "Đã xảy ra lỗi! Vui lòng thử lại sau!"
+            });
+        }
+    }
+}
+
 }
