@@ -9,7 +9,7 @@ using Repository;
 
 namespace Service.AdmissionTimeSer
 {
-    public class AdmissionTimeService
+    public class AdmissionTimeService : IAdmissionTimeService
     {
         private readonly AdmissionTimeRepository _admissionTimeRepository;
         /*private readonly AdmissionInfomationRepository _admissionInfomationRepository;*/
