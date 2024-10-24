@@ -11,25 +11,27 @@ namespace ARMS_API.Controllers.AdmissionCouncil
 {
     [Route("api/admission-council/[controller]")]
     [ApiController]
-    [Authorize(Roles = "AdmissionCouncil")]
+   [Authorize(Roles = "AdmissionCouncil")]
     public class MajorController : ControllerBase
     {
 
         private IMajorService _majorService;
         private ValidMajor _validMajor;
         private readonly IMapper _mapper;
-        public MajorController(IMajorService majorService, IMapper mapper, ValidMajor validMajor)
+        private UserInput _userInput;
+        public MajorController(IMajorService majorService, IMapper mapper, ValidMajor validMajor, UserInput userInput)
         {
             _majorService = majorService;
             _mapper = mapper;
             _validMajor = validMajor;
+            _userInput = userInput;
         }
         [HttpPut("update-major")]
         public async Task<IActionResult> UpdateMajor(Major_Admission_DTO MajorDTO)
         {
             try
             {
-                Major major = _mapper.Map<Major>(MajorDTO);
+                MajorAdmission major = _mapper.Map<MajorAdmission>(MajorDTO);
                 await _majorService.UpdateMajorAdmission(major);
                 return Ok(new ResponseViewModel()
                 {
@@ -44,16 +46,68 @@ namespace ARMS_API.Controllers.AdmissionCouncil
                 return BadRequest();
             }
         }
-        [HttpGet("get-majors")]
-        public async Task<IActionResult> GetMajors(string campus)
+        [HttpPost("add-major")]
+        public async Task<IActionResult> AddMajor(Major_Admission_DTO MajorDTO)
         {
             try
             {
+                MajorAdmission major = _mapper.Map<MajorAdmission>(MajorDTO);
+                await _majorService.AddMajorAdmision(major);
+                return Ok(new ResponseViewModel()
+                {
+                    Status = true,
+                    Message = "Thêm ngành tuyển sinh thành công!"
+                });
 
-                List<Major> response = await _majorService.GetMajorsAdmin(campus);
+            }
+            catch (Exception)
+            {
 
-                List<Major_Admission_Council_DTO> responeResult = _mapper.Map<List<Major_Admission_Council_DTO>>(response);
-                return Ok(responeResult);
+                return BadRequest();
+            }
+        }
+        [HttpGet("get-majors")]
+        public async Task<IActionResult> GetMajors(string? CampusId, bool? college, string? Search, int CurrentPage)
+        {
+            try
+            {
+                ResponeModel<MajorDTO> result = new ResponeModel<MajorDTO>();
+                result.CurrentPage = CurrentPage;
+                result.CampusId = CampusId;
+                result.Search = Search;
+
+                List<MajorAdmission> response = await _majorService.GetMajorsManage(CampusId);
+                if (college != null)
+                {
+                    response = response.Where(x => x.Major.isVocationalSchool == true).ToList();
+                }
+                // Search
+                if (!string.IsNullOrEmpty(Search))
+                {
+                    string searchTerm = _userInput.NormalizeText(Search);
+                    response = response
+                                .Where(major =>
+                                    major != null &&
+                                    (
+                                        _userInput.NormalizeText(major.Major.MajorName ?? "").Contains(searchTerm) ||
+                                        _userInput.NormalizeText(major.Major.MajorCode ?? "").Contains(searchTerm) ||
+                                        _userInput.NormalizeText(major.MajorID ?? "").Contains(searchTerm)
+                                    )
+                                )
+                                .ToList();
+                }
+
+                result.PageCount = (int)Math.Ceiling(response.Count() / (double)result.PageSize);
+                var majors = response
+                    .Skip(((int)result.CurrentPage - 1) * (int)result.PageSize)
+                    .Take((int)result.PageSize)
+                    .ToList();
+
+                List<MajorDTO> responeResult = _mapper.Map<List<MajorDTO>>(majors);
+                result.Item = responeResult;
+                result.TotalItems = response.Count;
+
+                return Ok(result);
 
             }
             catch (Exception)
@@ -68,8 +122,25 @@ namespace ARMS_API.Controllers.AdmissionCouncil
             try
             {
 
-                Major response = await _majorService.GetMajorDetail(MajorId);
-                Major_Admission_Council_DTO responeResult = _mapper.Map<Major_Admission_Council_DTO>(response);
+                MajorAdmission response = await _majorService.GetMajorDetail(MajorId);
+                MajorDTO responeResult = _mapper.Map<MajorDTO>(response);
+                return Ok(responeResult);
+
+            }
+            catch (Exception)
+            {
+
+                return BadRequest();
+            }
+        }
+        [HttpGet("get-majors_admission/{ATId}")]
+        public async Task<IActionResult> GetMajorAdmissions(int ATId)
+        {
+            try
+            {
+
+                List<MajorAdmission> response = await _majorService.GetMajorAdmissionsByATId(ATId);
+               List<Major_AC_DTO> responeResult = _mapper.Map<List<Major_AC_DTO>>(response);
                 return Ok(responeResult);
 
             }
