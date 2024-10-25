@@ -13,125 +13,98 @@ using static Google.Apis.Requests.BatchRequest;
 namespace ARMS_API.Controllers.Student
 {
     [Route("api/Student/[controller]")]
-    [ApiController]
-    [Authorize(Roles = "Student")]
-    public class RequestChangeMajorController : ControllerBase
+[ApiController]
+[Authorize(Roles = "Student")]
+public class RequestChangeMajorController : BaseController
+{
+    private readonly IRequestService _requestChangeMajorService;
+
+    public RequestChangeMajorController(
+        IRequestService requestChangeMajorService,
+        IMapper mapper,
+        IAccountService accountService) : base(accountService, mapper)
     {
-        private IRequestService _requestChangeMajorService;
-        private IAccountService _accountService;
-        private readonly IMapper _mapper;
-        public RequestChangeMajorController(IRequestService requestChangeMajorService, IMapper mapper, IAccountService accountService)
+        _requestChangeMajorService = requestChangeMajorService;
+    }
+
+    [HttpGet("get-request-change-major")]
+    public async Task<IActionResult> GetRequestChangeMajor()
+    {
+        try
         {
-            _requestChangeMajorService = requestChangeMajorService;
-            _mapper = mapper;
-            _accountService = accountService;
+            var userId = GetUserId();
+            var requests = await _requestChangeMajorService.GetRequestChangeMajorsByID(userId);
+            var response = _mapper.Map<List<RequestChangeMajorDTO>>(requests);
+            return Ok(response);
         }
-        [HttpGet("get-request-change-major")]
-        public async Task<IActionResult> GetRequestChangeMajor()
+        catch (UnauthorizedAccessException ex)
         {
-            try
-            {
-                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-                if (string.IsNullOrEmpty(userId))
-                {
-                    return Unauthorized("Không tìm thấy ID người dùng!");
-                }
-                List<Request> request = await _requestChangeMajorService.GetRequestChangeMajorsByID(Guid.Parse(userId));
-                List<RequestChangeMajorDTO> responeResult = _mapper.Map<List<RequestChangeMajorDTO>>(request);
-                return Ok(responeResult);
-
-            }
-            catch (Exception)
-            {
-                return BadRequest(new ResponseViewModel
-                {
-                    Status = false,
-                    Message = "Đã xảy ra lỗi! Vui lòng thử lại sau!"
-                });
-            }
+            return Unauthorized(ex.Message);
         }
-        [HttpGet("get-major")]
-        public async Task<IActionResult> GetMajor()
+        catch (Exception)
         {
-            try
+            return BadRequest(new ResponseViewModel
             {
-                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-                if (string.IsNullOrEmpty(userId))
-                {
-                    return Unauthorized("Không tìm thấy ID người dùng!");
-                }
-                Account major = await _accountService.GetAccountByUserId(Guid.Parse(userId));
-                Account_Major_DTO responeResult = _mapper.Map<Account_Major_DTO>(major);
-                return Ok(responeResult);
-
-            }
-            catch (Exception)
-            {
-                return BadRequest(new ResponseViewModel
-                {
-                    Status = false,
-                    Message = "Đã xảy ra lỗi! Vui lòng thử lại sau!"
-                });
-            }
-        }
-        [HttpPost("add-request-change-major")]
-        public async Task<IActionResult> AddRegisterAdmission([FromBody] RequestChangeMajor_Student_DTO requestChangeMajor_Student_DTO)
-        {
-            try
-            {
-                if (requestChangeMajor_Student_DTO == null)
-                {
-                    return BadRequest(new ResponseViewModel()
-                    {
-                        Status = false,
-                        Message = "Không nhận được dữ liệu yêu cầu!"
-                    });
-                }
-                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-                if (string.IsNullOrEmpty(userId))
-                {
-                    return Unauthorized(new ResponseViewModel()
-                    {
-                        Status = false,
-                        Message = "Vui lòng đăng nhập lại để tiếp tục sử dụng!"
-                    });
-                }
-
-                //get acccount by userId
-                var account = await _accountService.GetAccountByUserId(Guid.Parse(userId));
-                if (account == null)
-                {
-                    return BadRequest(new ResponseViewModel()
-                    {
-                        Status = false,
-                        Message = "Không tìm thấy tài khoản người dùng!"
-                    });
-                }
-                //mapper
-                Request RequestChangeMajor = _mapper.Map<Request>(requestChangeMajor_Student_DTO);
-                RequestChangeMajor.Status = TypeofRequestChangeMajor.Inprocess;
-                RequestChangeMajor.AccountId = Guid.Parse(userId);
-                RequestChangeMajor.MajorOld = account.MajorId;
-                RequestChangeMajor.CampusId = account.CampusId;
-                RequestChangeMajor.isRequestChangeMajor = true;
-                RequestChangeMajor.DateRequest = DateTime.UtcNow;
-
-                //add new
-                await _requestChangeMajorService.AddNewRequest(RequestChangeMajor);
-                return Ok(new ResponseViewModel()
-                {
-                    Status = true,
-                    Message = "Gửi yêu cầu thành công!"
-                });
-            }
-            catch (Exception)
-            {
-                return BadRequest(new ResponseViewModel
-                {
-                    Status = false,
-                    Message = "Đã xảy ra lỗi! Vui lòng thử lại sau!"
-                });
-            }
+                Status = false,
+                Message = "Đã xảy ra lỗi! Vui lòng thử lại sau!"
+            });
         }
     }
+
+    [HttpPost("add-request-change-major")]
+    public async Task<IActionResult> AddRequestChangeMajor([FromBody] RequestChangeMajor_Student_DTO dto)
+    {
+        try
+        {
+            if (dto == null)
+            {
+                return BadRequest(new ResponseViewModel
+                {
+                    Status = false,
+                    Message = "Không nhận được dữ liệu yêu cầu!"
+                });
+            }
+
+            var userId = GetUserId();
+            var account = await _accountService.GetAccountByUserId(userId);
+            if (account == null)
+            {
+                return BadRequest(new ResponseViewModel
+                {
+                    Status = false,
+                    Message = "Không tìm thấy tài khoản người dùng!"
+                });
+            }
+
+            var request = _mapper.Map<Request>(dto);
+            request.Status = TypeofRequestChangeMajor.Inprocess;
+            request.AccountId = userId;
+            request.MajorOld = account.MajorId;
+            request.CampusId = account.CampusId;
+            request.isRequestChangeMajor = true;
+            request.DateRequest = DateTime.UtcNow;
+
+            await _requestChangeMajorService.AddNewRequest(request);
+
+            return Ok(new ResponseViewModel
+            {
+                Status = true,
+                Message = "Gửi yêu cầu thành công!"
+            });
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Unauthorized(ex.Message);
+        }
+        catch (Exception)
+        {
+            return BadRequest(new ResponseViewModel
+            {
+                Status = false,
+                Message = "Đã xảy ra lỗi! Vui lòng thử lại sau!"
+            });
+        }
+    }
+}
+
 }
