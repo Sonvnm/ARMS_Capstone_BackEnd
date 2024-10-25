@@ -33,6 +33,24 @@ namespace Service.AdmissionTimeSer
             }
 
         }
+        public async Task<List<AdmissionTime>> GetAdmissionTimes(string CampusId)
+        {
+            // lấy ra năm đang tuyển sinh
+            //var AI = await _admissionInfomationRepository.GetAdmissionInformationProcess(CampusId);
+            var result = await _admissionTimeRepository.GetAdmissionTimes(CampusId);
+            var respone = result.Where(x => x.AdmissionInformationID == AI.AdmissionInformationID).ToList();
+            return respone;
+        }
+        public async Task<AdmissionTime> GetAdmissionTime(string CampusId)
+        {
+            DateTime date = DateTime.Now;
+            //// lấy ra năm đang tuyển sinh
+            //var AI = await _admissionInfomationRepository.GetAdmissionInformationProcess(CampusId);
+            var result = await _admissionTimeRepository.GetAdmissionTimes(CampusId);
+            var respone = result.Where(x => x.AdmissionInformationID == AI.AdmissionInformationID).ToList();
+            var AT = respone.FirstOrDefault(x => x.StartRegister <= date && x.EndRegister >= date);
+            return AT;
+        }
 
     }
 }
