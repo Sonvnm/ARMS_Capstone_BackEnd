@@ -28,30 +28,30 @@ namespace ARMS_API.Controllers.Admin
             _validAdmissionInformation = validAdmissionInformation;
         }
 
-        [HttpPut("update-admission-information")]
-        public async Task<IActionResult> UpdateAdmissionInformation(AdmissionInformation_Update_DTO AdmissionInformationDTO)
-        {
-            try
-            {
-                var checkdata = await _campusService.GetCampus(AdmissionInformationDTO.CampusId);
-                if (checkdata == null) return NotFound();
-                //check data
-                _validAdmissionInformation.ValidDataAdmissionInfor(AdmissionInformationDTO);
-                //mapper
-                AdmissionInformation admissionInformation = _mapper.Map<AdmissionInformation>(AdmissionInformationDTO);
-                await _admissionInformationService.UpdateAdmissionInformation(admissionInformation);
-                return Ok(new ResponseViewModel()
-                {
-                    Status = true,
-                    Message = "Cập nhật thành công!"
-                });
+        //[HttpPut("update-admission-information")]
+        //public async Task<IActionResult> UpdateAdmissionInformation(AdmissionInformation_Update_DTO AdmissionInformationDTO)
+        //{
+        //    try
+        //    {
+        //        var checkdata = await _campusService.GetCampus(AdmissionInformationDTO.CampusId);
+        //        if (checkdata == null) return NotFound();
+        //        //check data
+        //        _validAdmissionInformation.ValidDataAdmissionInfor(AdmissionInformationDTO);
+        //        //mapper
+        //        AdmissionInformation admissionInformation = _mapper.Map<AdmissionInformation>(AdmissionInformationDTO);
+        //        await _admissionInformationService.UpdateAdmissionInformation(admissionInformation);
+        //        return Ok(new ResponseViewModel()
+        //        {
+        //            Status = true,
+        //            Message = "Cập nhật thành công!"
+        //        });
 
-            }
-            catch (Exception)
-            {
+        //    }
+        //    catch (Exception)
+        //    {
 
-                return BadRequest();
-            }
-        }
+        //        return BadRequest();
+        //    }
+        //}
     }
 }
