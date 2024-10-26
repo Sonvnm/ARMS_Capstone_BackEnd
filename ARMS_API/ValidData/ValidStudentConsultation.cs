@@ -21,11 +21,21 @@ namespace ARMS_API.ValidData
             {
                 case bool _ when string.IsNullOrEmpty(studentConsultationDTO.FullName):
                     throw new ArgumentException("Không được để trống họ và tên", nameof(studentConsultationDTO.FullName));
+
+                case bool _ when string.IsNullOrEmpty(studentConsultationDTO.Email):
+                    throw new ArgumentException("Không được để trống email", nameof(studentConsultationDTO.Email));
+
+                case bool _ when !_userInput.IsValidEmail(studentConsultationDTO.Email):
+                    throw new FormatException("Email không hợp lệ!");
+
                 case bool _ when string.IsNullOrEmpty(studentConsultationDTO.PhoneNumber):
                     throw new ArgumentException("Không được để trống số điện thoại", nameof(studentConsultationDTO.PhoneNumber));
 
                 case bool _ when !_userInput.IsValidPhoneNumber(studentConsultationDTO.PhoneNumber):
                     throw new FormatException("Số điện thoại không hợp lệ!");
+
+                case bool _ when studentConsultationDTO.MajorID == null:
+                    throw new ArgumentException("Không được để trống ngành học", nameof(studentConsultationDTO.MajorID));
 
                 case bool _ when string.IsNullOrEmpty(studentConsultationDTO.LinkFB):
                     throw new ArgumentException("Không được để trống link Facebook", nameof(studentConsultationDTO.LinkFB));
