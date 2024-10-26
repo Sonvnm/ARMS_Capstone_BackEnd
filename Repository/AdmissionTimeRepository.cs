@@ -55,6 +55,30 @@ namespace Repository
                 throw;
             }
         }
+        public async Task AddAdmissionTime(AdmissionTime AdmissionTime)
+        {
+            try
+            {
+                _context.AdmissionTimes.AddRangeAsync(AdmissionTime);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception)
+            {
+                throw new Exception("Tạo mới không thành công");
+            }
+        }
+        public async Task UpdateAdmissionTime(AdmissionTime AdmissionTime)
+        {
+            try
+            {
+                _context.Entry<AdmissionTime>(AdmissionTime).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception)
+            {
+                throw new Exception("Chỉnh sửa không thành công");
+            }
+        }
 
     }
 }
