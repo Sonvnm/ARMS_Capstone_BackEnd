@@ -64,7 +64,7 @@ namespace Service.AdmissionTimeSer
                 checkValid.StartAdmission = AdmissionTime.StartAdmission;
                 checkValid.StartRegister = AdmissionTime.StartRegister;
                 checkValid.EndRegister = AdmissionTime.EndRegister;
-                
+                checkValid.AdmissionInformationID = AdmissionTime.AdmissionInformationID;
                 await _admissionTimeRepository.UpdateAdmissionTime(checkValid);
             }
             catch (Exception)
