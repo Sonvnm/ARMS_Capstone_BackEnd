@@ -12,7 +12,7 @@ namespace Service.AdmissionTimeSer
     public class AdmissionTimeService : IAdmissionTimeService
     {
         private readonly AdmissionTimeRepository _admissionTimeRepository;
-        /*private readonly AdmissionInfomationRepository _admissionInfomationRepository;*/
+        //private readonly AdmissionInfomationRepository _admissionInfomationRepository;
         public AdmissionTimeService(ArmsDbContext context)
         {
             _admissionTimeRepository = new AdmissionTimeRepository(context);
