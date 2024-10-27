@@ -33,6 +33,8 @@ namespace Service.AdmissionTimeSer
             }
 
         }
+        public Task<AdmissionTime> GetAdmissionTime(int AIId)
+            => _admissionTimeRepository.GetAdmissionTime(AIId);
         public async Task<List<AdmissionTime>> GetAdmissionTimes(string CampusId)
         {
             // lấy ra năm đang tuyển sinh
