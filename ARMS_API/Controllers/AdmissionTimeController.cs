@@ -1,5 +1,8 @@
 ﻿using AutoMapper;
+using Data.DTO;
+using Data.Models;
 using Microsoft.AspNetCore.Mvc;
+using Service.AdmissionTimeSer;
 
 namespace ARMS_API.Controllers
 {
@@ -9,14 +12,27 @@ namespace ARMS_API.Controllers
     {
         private IAdmissionTimeService _admissionTimeService;
         private readonly IMapper _mapper;
-        public AdmissionTimeController()
+        public AdmissionTimeController(IAdmissionTimeService admissionTimeService, IMapper mapper)
         {
-
+            _admissionTimeService = admissionTimeService;
+            _mapper = mapper;
         }
-        [HttpGet("get-admission-time")]
-        public async Task<IActionResult> GetAdmissionTimes()
+        public async Task<IActionResult> GetAdmissionTimes(string CampusId)
         {
-            return Ok();
+            try
+            {
+                List<AdmissionTime> response = await _admissionTimeService.GetAdmissionTimes(CampusId);
+                List<AdmissionTimeDTO> responeResult = _mapper.Map<List<AdmissionTimeDTO>>(response);
+                return Ok(responeResult);
+            }
+            catch (Exception)
+            {
+                return BadRequest(new ResponseViewModel
+                {
+                    Status = false,
+                    Message = "Đã xảy ra lỗi! Vui lòng thử lại sau!"
+                });
+            }
         }
     }
 }
