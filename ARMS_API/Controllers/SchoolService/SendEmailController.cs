@@ -6,27 +6,51 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Service.AccountSer;
 using Service.EmailSer;
+using Service.RequestNotificationSer;
 using static System.Net.WebRequestMethods;
 
 namespace ARMS_API.Controllers.SchoolService
 {
-    [Route("api/[controller]")]
+    [Route("api/SchoolService/[controller]")]
     [ApiController]
+    //[Authorize(Roles = "SchoolService")]
     public class SendEmailController : ControllerBase
     {
         private readonly IEmailService _emailService;
         private readonly IAccountService _accountService;
+        private readonly IRequestNotificationService _requestNotificationService;
         private readonly EmailQueue _emailQueue;
-        public SendEmailController(IEmailService emailService, IAccountService accountService, EmailQueue emailQueue)
+        public SendEmailController(IEmailService emailService, IAccountService accountService, EmailQueue emailQueue, IRequestNotificationService requestNotificationService)
         {
             _emailService = emailService;
             _accountService = accountService;
             _emailQueue = emailQueue;
+            _requestNotificationService = requestNotificationService;
         }
+        [HttpGet("get-request-notification")]
+        public async Task<IActionResult> GetRequest()
+        {
+            try
+            {
+                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return Unauthorized("Không tìm thấy ID người dùng!");
+                }
+                List<RequestNotification> request = await _requestNotificationService.GetRequests(Guid.Parse(userId));
+                return Ok(request);
 
+            }
+            catch (Exception)
+            {
+
+                return BadRequest();
+            }
+        }
         [HttpPost("send-notification-to-student")]
         public async Task<IActionResult> SendNotificationByEmail([FromBody] RequestSendNotification requestSendNotification)
         {
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
             try
             {
                 if (requestSendNotification == null || string.IsNullOrEmpty(requestSendNotification.Content))
@@ -43,14 +67,21 @@ namespace ARMS_API.Controllers.SchoolService
                         var emailRequest = new EmailRequest
                         {
                             ToEmail = item.Email,
-                            Subject = "Notification of ARMS",
+                            Subject = requestSendNotification.Subject,
                             Body = requestSendNotification.Content
                         };
 
-                        await _emailService.SendEmailAsync(emailRequest);
+                        await _emailService.SendEmailByHTMLAsync(emailRequest);
                     }
                 });
-
+                RequestNotification requestNotification = new RequestNotification()
+                {
+                    AccountId = Guid.Parse(userId),
+                    Content = requestSendNotification.Content,
+                    Subject = requestSendNotification.Subject,
+                    TimeSend = DateTime.Now
+                };
+                _requestNotificationService.AddNewRequest(requestNotification);
                 return Ok("Thông báo đã được gửi!");
             }
             catch (Exception ex)
