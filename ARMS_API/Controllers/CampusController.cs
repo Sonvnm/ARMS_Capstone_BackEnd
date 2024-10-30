@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
+using Service.CampusSer;
 
 namespace ARMS_API.Controllers
 {
@@ -6,7 +8,8 @@ namespace ARMS_API.Controllers
     [ApiController]
     public class CampusController : Controller
     {
-        
+        private ICampusService _campusService;
+        private readonly IMapper _mapper;
         [HttpGet("count-campus")]
         public async Task<IActionResult> CountCampus()
         {
