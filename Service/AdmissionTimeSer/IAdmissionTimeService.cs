@@ -10,7 +10,9 @@ namespace Service.AdmissionTimeSer
     public interface IAdmissionTimeService
     {
         Task<List<AdmissionTime>> GetAdmissionTimes(string CampusId);
+        Task<AdmissionTime> GetAdmissionTime(int AIId);
         Task AddAdmissionTime(AdmissionTime AdmissionTime);
+        Task UpdateAdmissionTime(AdmissionTime AdmissionTime);
         Task<AdmissionTime> GetAdmissionTime(string CampusId);
     }
 }
