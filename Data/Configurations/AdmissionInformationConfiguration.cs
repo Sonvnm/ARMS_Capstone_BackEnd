@@ -20,9 +20,7 @@ namespace Data.Configurations
             builder.Property(x => x.CampusId).IsRequired();
 
             #region config relation
-            builder.HasOne(sp => sp.Campus)
-               .WithOne(a => a.AdmissionInformation)
-               .HasForeignKey<AdmissionInformation>(sp => sp.CampusId);
+            builder.HasOne(x => x.Campus).WithMany(x => x.AdmissionInformations).HasForeignKey(x => x.CampusId).OnDelete(DeleteBehavior.NoAction);
             #endregion
         }
     }

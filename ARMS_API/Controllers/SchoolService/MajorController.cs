@@ -19,42 +19,48 @@ namespace ARMS_API.Controllers.SchoolService
         private IMajorService _majorService;
         private readonly IMapper _mapper;
         private UserInput _userInput;
+
         public MajorController(IMajorService majorService, IMapper mapper, UserInput userInput)
         {
             _majorService = majorService;
             _mapper = mapper;
             _userInput = userInput;
         }
+
         [HttpGet("get-majors")]
         public async Task<IActionResult> GetMajors(string? CampusId, bool? college, string? Search, int CurrentPage)
         {
             try
             {
-                ResponeModel<MajorDTO> result = new ResponeModel<MajorDTO>();
-                result.CurrentPage = CurrentPage;
-                result.CampusId = CampusId;
-                result.Search = Search;
+                ResponeModel<MajorDTO> result = new ResponeModel<MajorDTO>
+                {
+                    CurrentPage = CurrentPage,
+                    CampusId = CampusId,
+                    Search = Search
+                };
 
                 List<MajorAdmission> response = await _majorService.GetMajorsManage(CampusId);
-                response = response.Where(x=>x.Status==true).ToList();
-                if (college!=null)
+                response = response.Where(x => x.Status == true).ToList();
+
+                if (college != null)
                 {
-                    response = response.Where(x=>x.Major.isVocationalSchool==true).ToList();
+                    response = response.Where(x => x.Major.isVocationalSchool == true).ToList();
                 }
+
                 // Search
                 if (!string.IsNullOrEmpty(Search))
                 {
                     string searchTerm = _userInput.NormalizeText(Search);
                     response = response
-                                .Where(major =>
-                                    major != null &&
-                                    (
-                                        _userInput.NormalizeText(major.Major.MajorName ?? "").Contains(searchTerm) ||
-                                        _userInput.NormalizeText(major.Major.MajorCode ?? "").Contains(searchTerm) ||
-                                        _userInput.NormalizeText(major.MajorID ?? "").Contains(searchTerm)
-                                    )
-                                )
-                                .ToList();
+                        .Where(major =>
+                            major != null &&
+                            (
+                                _userInput.NormalizeText(major.Major.MajorName ?? "").Contains(searchTerm) ||
+                                _userInput.NormalizeText(major.Major.MajorCode ?? "").Contains(searchTerm) ||
+                                _userInput.NormalizeText(major.MajorID ?? "").Contains(searchTerm)
+                            )
+                        )
+                        .ToList();
                 }
 
                 result.PageCount = (int)Math.Ceiling(response.Count() / (double)result.PageSize);
@@ -72,24 +78,21 @@ namespace ARMS_API.Controllers.SchoolService
             }
             catch (Exception)
             {
-
                 return BadRequest();
             }
         }
+
         [HttpGet("get-major-details")]
         public async Task<IActionResult> GetMajorDetail(string MajorId)
         {
             try
             {
-
                 MajorAdmission response = await _majorService.GetMajorDetail(MajorId);
                 MajorDTO responeResult = _mapper.Map<MajorDTO>(response);
                 return Ok(responeResult);
-
             }
             catch (Exception)
             {
-
                 return BadRequest();
             }
         }
