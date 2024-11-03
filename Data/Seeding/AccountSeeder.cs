@@ -43,20 +43,24 @@ namespace Data.Seeding
                     PasswordHash = new PasswordHasher<Account>().HashPassword(null, "AdminHn@123"),
                     SecurityStamp = Guid.NewGuid().ToString(),
                     CampusId = "Hanoi",
-                    Fullname = "Admin Hanoi"
+                    Fullname = "Admin Hanoi",
+                    isAccountActive = true,
+                    TypeAccount = TypeAccount.Account,
                 },
                  new Account()
                  {
                      Id = Guid.Parse("5738248D-B40E-4332-9B9E-DEB0ABC8F8DD"),
                      UserName = "AdmissionOfficer",
                      NormalizedUserName = "ADMISSIONOFFICER",
-                     Email = "AdmissionOfficer@gmail.com",
+                     Email = "anhtran120786@gmail.com",
                      NormalizedEmail = "ADMISSIONOFFICER@GMAIL.COM",
                      EmailConfirmed = true,
                      PasswordHash = new PasswordHasher<Account>().HashPassword(null, "AdmissionOfficer@123"),
                      SecurityStamp = Guid.NewGuid().ToString(),
                      CampusId = "Hanoi",
-                     Fullname = "Admin Officer Hanoi"
+                     Fullname = "Admin Officer Hanoi",
+                     isAccountActive = true,
+                     TypeAccount = TypeAccount.Account,
                  },
                  new Account()
                  {
@@ -69,20 +73,24 @@ namespace Data.Seeding
                      PasswordHash = new PasswordHasher<Account>().HashPassword(null, "SchoolService@123"),
                      SecurityStamp = Guid.NewGuid().ToString(),
                      CampusId = "Hanoi",
-                     Fullname = "School Service Hanoi"
+                     Fullname = "School Service Hanoi",
+                     isAccountActive = true,
+                     TypeAccount = TypeAccount.Account,
                  },
                  new Account()
                  {
                      Id = Guid.Parse("AA321FA2-D640-449F-9CF3-D5A14001AA3E"),
                      UserName = "AdmissionCouncil",
                      NormalizedUserName = "ADMISSIONCOUNCIL",
-                     Email = "AdmissionCouncil@gmail.com",
+                     Email = "hoaithu1707.25@gmail.com",
                      NormalizedEmail = "ADMISSIONCOUNCIL@GMAIL.COM",
                      EmailConfirmed = true,
                      PasswordHash = new PasswordHasher<Account>().HashPassword(null, "AdmissionCouncil@123"),
                      SecurityStamp = Guid.NewGuid().ToString(),
                      CampusId = "Hanoi",
-                     Fullname = "Admission Council Hanoi"
+                     Fullname = "Admission Council Hanoi",
+                     isAccountActive = true,
+                     TypeAccount = TypeAccount.Account,
                  },
                  new Account()
                  {
@@ -95,7 +103,11 @@ namespace Data.Seeding
                      PasswordHash = new PasswordHasher<Account>().HashPassword(null, "DucAnh@123"),
                      SecurityStamp = Guid.NewGuid().ToString(),
                      CampusId = "Hanoi",
-                     Fullname = "Nguyễn Đức Anh"
+                     Fullname = "Nguyễn Đức Anh",
+                     StudentCode = "HWE160153",
+                     MajorId = "HWE",
+                     isAccountActive = true,
+                     TypeAccount = TypeAccount.RequestAccountAccept,
                  });
 
             // Seed User in role
@@ -111,7 +123,7 @@ namespace Data.Seeding
                 new IdentityUserRole<Guid> { UserId = Guid.Parse("AA321FA2-D640-449F-9CF3-D5A14001AA3E"), RoleId = Guid.Parse("E5EC8836-E240-4BFC-9BBE-33F2CC7A404D") },
                 ////seed student
                 new IdentityUserRole<Guid> { UserId = Guid.Parse("2F36AD81-47C3-4194-9AF8-BA19300695AA"), RoleId = Guid.Parse("D2D63C5B-D09B-4828-8322-F18BA103FE86") }
-                ); ;
+                );
         }
     }
 }
