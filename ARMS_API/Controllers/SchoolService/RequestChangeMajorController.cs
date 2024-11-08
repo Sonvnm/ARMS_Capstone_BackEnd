@@ -20,12 +20,14 @@ namespace ARMS_API.Controllers.SchoolService
         private IRequestService _requestChangeMajorService;
         private readonly IMapper _mapper;
         private UserInput _userInput;
+
         public RequestChangeMajorController(IRequestService requestChangeMajorService, IMapper mapper, UserInput userInput)
         {
             _requestChangeMajorService = requestChangeMajorService;
             _mapper = mapper;
             _userInput = userInput;
         }
+
         [HttpGet("get-request-change-major")]
         public async Task<IActionResult> GetRequestChangeMajor(string CampusId, string? Search, int CurrentPage, TypeofRequestChangeMajor? Status)
         {
@@ -40,65 +42,67 @@ namespace ARMS_API.Controllers.SchoolService
 
                 List<Request> response = await _requestChangeMajorService.GetRequestChangeMajors(CampusId);
 
+                // Apply Search filter
                 if (!string.IsNullOrEmpty(Search))
                 {
                     string searchTerm = _userInput.NormalizeText(Search);
                     response = response
-                                .Where(request =>
-                                {
-                                    string description = _userInput.NormalizeText(request?.Description ?? "");
-                                    string majorNew = _userInput.NormalizeText(request?.MajorNew ?? "");
-                                    string fullname = _userInput.NormalizeText(request?.Account?.Fullname ?? "");
-                                    string studentCode = _userInput.NormalizeText(request?.Account?.StudentCode ?? "");
-                                    string majorNameOld = _userInput.NormalizeText(request?.MajorO?.MajorName ?? "");
-                                    string majorNameNew = _userInput.NormalizeText(request?.MajorN?.MajorName ?? "");
-                                    return description.Contains(searchTerm) ||
-                                           majorNew.Contains(searchTerm) ||
-                                           fullname.Contains(searchTerm) ||
-                                           studentCode.Contains(searchTerm) ||
-                                           majorNameOld.Contains(searchTerm) ||
-                                           majorNameNew.Contains(searchTerm);
-                                })
-                                .ToList();
+                        .Where(request =>
+                        {
+                            string description = _userInput.NormalizeText(request?.Description ?? "");
+                            string majorNew = _userInput.NormalizeText(request?.MajorNew ?? "");
+                            string fullname = _userInput.NormalizeText(request?.Account?.Fullname ?? "");
+                            string studentCode = _userInput.NormalizeText(request?.Account?.StudentCode ?? "");
+                            string majorNameOld = _userInput.NormalizeText(request?.MajorO?.MajorName ?? "");
+                            string majorNameNew = _userInput.NormalizeText(request?.MajorN?.MajorName ?? "");
+                            return description.Contains(searchTerm) ||
+                                   majorNew.Contains(searchTerm) ||
+                                   fullname.Contains(searchTerm) ||
+                                   studentCode.Contains(searchTerm) ||
+                                   majorNameOld.Contains(searchTerm) ||
+                                   majorNameNew.Contains(searchTerm);
+                        })
+                        .ToList();
                 }
-
 
                 // Apply Status filter
                 if (Status.HasValue)
                 {
                     response = response
-                                .Where(request => request != null && request.Status == Status)
-                                .ToList();
+                        .Where(request => request != null && request.Status == Status)
+                        .ToList();
                 }
 
-                // Pagination
+                // Apply Pagination
                 result.PageCount = (int)Math.Ceiling(response.Count / (double)result.PageSize);
-                var majors = response
+                var requests = response
                     .Skip((CurrentPage - 1) * result.PageSize)
                     .Take(result.PageSize)
                     .ToList();
 
-                // Map results to DTOs
-                result.Item = _mapper.Map<List<RequestChangeMajor_SS_DTO>>(majors);
+                // Map to DTO
+                result.Item = _mapper.Map<List<RequestChangeMajor_SS_DTO>>(requests);
                 result.TotalItems = response.Count;
 
                 return Ok(result);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return BadRequest();
             }
         }
+
         [HttpPut("accept-request-change-major")]
-        public async Task<IActionResult> AddRequest(int RequestID, [FromBody] Reply_Request_DTO Reply_Request_DTO)
+        public async Task<IActionResult> AcceptRequest(int RequestID, [FromBody] Reply_Request_DTO Reply_Request_DTO)
         {
             try
             {
-
-                Request request =await _requestChangeMajorService.GetRequestByID(RequestID);
+                // Get the request by ID
+                Request request = await _requestChangeMajorService.GetRequestByID(RequestID);
                 request.Status = Reply_Request_DTO.Status;
                 request.Reply = Reply_Request_DTO.Reply;
-                //add new
+
+                // Update the request
                 await _requestChangeMajorService.UpdateRequest(request);
                 return Ok(new ResponseViewModel()
                 {
