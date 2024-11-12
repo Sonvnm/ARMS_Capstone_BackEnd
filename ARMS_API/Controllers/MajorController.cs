@@ -19,14 +19,14 @@ namespace ARMS_API.Controllers
             _majorService = majorService;
             _mapper = mapper;
         }
-
         [HttpGet("get-majors-vocational-school")]
         public async Task<IActionResult> GetMajorsVocationalSchool(string campus)
         {
             try
             {
-                List<MajorAdmission> data = await _majorService.GetMajorsIsVocationalSchool(campus);
-                if (data == null || !data.Any())
+
+                List<MajorAdmission> response = await _majorService.GetMajorsIsVocationalSchool(campus);
+                if (response == null)
                 {
                     return BadRequest(new ResponseViewModel
                     {
@@ -34,8 +34,9 @@ namespace ARMS_API.Controllers
                         Message = "Không có ngành trung cấp nào đang tuyển!"
                     });
                 }
-                List<MajorDTO> result = _mapper.Map<List<MajorDTO>>(data);
-                return Ok(result);
+                List<MajorDTO> responeResult = _mapper.Map<List<MajorDTO>>(response);
+                return Ok(responeResult);
+
             }
             catch (Exception)
             {
@@ -46,14 +47,14 @@ namespace ARMS_API.Controllers
                 });
             }
         }
-
         [HttpGet("get-majors-college")]
         public async Task<IActionResult> GetMajorsCollege(string campus)
         {
             try
             {
-                List<MajorAdmission> majorList = await _majorService.GetMajorsIsCollege(campus);
-                if (majorList == null)
+
+                List<MajorAdmission> response = await _majorService.GetMajorsIsCollege(campus);
+                if (response == null)
                 {
                     return BadRequest(new ResponseViewModel
                     {
@@ -61,8 +62,9 @@ namespace ARMS_API.Controllers
                         Message = "Không có ngành cao đẳng nào đang tuyển!"
                     });
                 }
-                List<MajorDTO> dtoResult = _mapper.Map<List<MajorDTO>>(majorList);
-                return Ok(dtoResult);
+                List<MajorDTO> responeResult = _mapper.Map<List<MajorDTO>>(response);
+                return Ok(responeResult);
+
             }
             catch (Exception)
             {
@@ -73,14 +75,14 @@ namespace ARMS_API.Controllers
                 });
             }
         }
-
         [HttpGet("get-majors-college-for-vocational-school")]
         public async Task<IActionResult> GetMajorsCollegeForVocationalSchool(string campus)
         {
             try
             {
-                List<MajorAdmission> majors = await _majorService.GetMajorsIsCollegeForVocationalSchool(campus);
-                if (majors == null || majors.Count == 0)
+
+                List<MajorAdmission> response = await _majorService.GetMajorsIsCollegeForVocationalSchool(campus);
+                if (response == null)
                 {
                     return BadRequest(new ResponseViewModel
                     {
@@ -88,8 +90,9 @@ namespace ARMS_API.Controllers
                         Message = "Không có ngành xét tuyển liên thông nào!"
                     });
                 }
-                List<MajorDTO> mappedMajors = _mapper.Map<List<MajorDTO>>(majors);
-                return Ok(mappedMajors);
+                List<MajorDTO> responeResult = _mapper.Map<List<MajorDTO>>(response);
+                return Ok(responeResult);
+
             }
             catch (Exception)
             {
@@ -100,14 +103,14 @@ namespace ARMS_API.Controllers
                 });
             }
         }
-
         [HttpGet("get-major-details")]
         public async Task<IActionResult> GetMajorDetail(string MajorId)
         {
             try
             {
-                MajorAdmission majorData = await _majorService.GetMajorDetail(MajorId);
-                if (string.IsNullOrEmpty(MajorId) || majorData == null)
+
+                MajorAdmission response = await _majorService.GetMajorDetail(MajorId);
+                if (response == null)
                 {
                     return NotFound(new ResponseViewModel
                     {
@@ -115,8 +118,9 @@ namespace ARMS_API.Controllers
                         Message = "Không tìm thấy ngành học!"
                     });
                 }
-                MajorDTO majorDetail = _mapper.Map<MajorDTO>(majorData);
-                return Ok(majorDetail);
+                MajorDTO responeResult = _mapper.Map<MajorDTO>(response);
+                return Ok(responeResult);
+
             }
             catch (Exception)
             {

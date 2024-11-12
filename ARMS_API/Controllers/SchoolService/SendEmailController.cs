@@ -20,7 +20,7 @@ namespace ARMS_API.Controllers.SchoolService
         private readonly IAccountService _accountService;
         private readonly IRequestNotificationService _requestNotificationService;
         private readonly EmailQueue _emailQueue;
-        public SendEmailController(IEmailService emailService, IAccountService accountService, EmailQueue emailQueue, IRequestNotificationService requestNotificationService)
+        public SendEmailController(IEmailService emailService, IAccountService accountService, EmailQueue emailQueue,IRequestNotificationService requestNotificationService)
         {
             _emailService = emailService;
             _accountService = accountService;

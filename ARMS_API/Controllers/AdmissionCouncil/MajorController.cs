@@ -5,25 +5,66 @@ using Data.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Repository.MajorRepo;
 using Service.MajorSer;
-using static Google.Apis.Requests.BatchRequest;
 
-namespace ARMS_API.Controllers.SchoolService
+namespace ARMS_API.Controllers.AdmissionCouncil
 {
-    [Route("api/school-service/[controller]")]
+    [Route("api/admission-council/[controller]")]
     [ApiController]
-    //[Authorize(Roles = "SchoolService")]
+   [Authorize(Roles = "AdmissionCouncil")]
     public class MajorController : ControllerBase
     {
+
         private IMajorService _majorService;
+        private ValidMajor _validMajor;
         private readonly IMapper _mapper;
         private UserInput _userInput;
-        public MajorController(IMajorService majorService, IMapper mapper, UserInput userInput)
+        public MajorController(IMajorService majorService, IMapper mapper, ValidMajor validMajor, UserInput userInput)
         {
             _majorService = majorService;
             _mapper = mapper;
+            _validMajor = validMajor;
             _userInput = userInput;
+        }
+        [HttpPut("update-major")]
+        public async Task<IActionResult> UpdateMajor(Major_Admission_DTO MajorDTO)
+        {
+            try
+            {
+                MajorAdmission major = _mapper.Map<MajorAdmission>(MajorDTO);
+                await _majorService.UpdateMajorAdmission(major);
+                return Ok(new ResponseViewModel()
+                {
+                    Status = true,
+                    Message = "Cập nhật thành công!"
+                });
+
+            }
+            catch (Exception)
+            {
+
+                return BadRequest();
+            }
+        }
+        [HttpPost("add-major")]
+        public async Task<IActionResult> AddMajor(Major_Admission_DTO MajorDTO)
+        {
+            try
+            {
+                MajorAdmission major = _mapper.Map<MajorAdmission>(MajorDTO);
+                await _majorService.AddMajorAdmision(major);
+                return Ok(new ResponseViewModel()
+                {
+                    Status = true,
+                    Message = "Thêm ngành tuyển sinh thành công!"
+                });
+
+            }
+            catch (Exception)
+            {
+
+                return BadRequest();
+            }
         }
         [HttpGet("get-majors")]
         public async Task<IActionResult> GetMajors(string? CampusId, bool? college, string? Search, int CurrentPage)
@@ -36,10 +77,9 @@ namespace ARMS_API.Controllers.SchoolService
                 result.Search = Search;
 
                 List<MajorAdmission> response = await _majorService.GetMajorsManage(CampusId);
-                response = response.Where(x=>x.Status==true).ToList();
-                if (college!=null)
+                if (college != null)
                 {
-                    response = response.Where(x=>x.Major.isVocationalSchool==true).ToList();
+                    response = response.Where(x => x.Major.isVocationalSchool == true).ToList();
                 }
                 // Search
                 if (!string.IsNullOrEmpty(Search))
@@ -84,6 +124,23 @@ namespace ARMS_API.Controllers.SchoolService
 
                 MajorAdmission response = await _majorService.GetMajorDetail(MajorId);
                 MajorDTO responeResult = _mapper.Map<MajorDTO>(response);
+                return Ok(responeResult);
+
+            }
+            catch (Exception)
+            {
+
+                return BadRequest();
+            }
+        }
+        [HttpGet("get-majors_admission/{ATId}")]
+        public async Task<IActionResult> GetMajorAdmissions(int ATId)
+        {
+            try
+            {
+
+                List<MajorAdmission> response = await _majorService.GetMajorAdmissionsByATId(ATId);
+               List<Major_AC_DTO> responeResult = _mapper.Map<List<Major_AC_DTO>>(response);
                 return Ok(responeResult);
 
             }

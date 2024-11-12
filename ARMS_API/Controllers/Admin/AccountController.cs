@@ -2,15 +2,21 @@
 using AutoMapper;
 using Data.DTO;
 using Data.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using Service.AccountSer;
+using Service.AdmissionTimeSer;
 using Service.MajorSer;
+using static Google.Apis.Requests.BatchRequest;
 
 namespace ARMS_API.Controllers.Admin
 {
     [Route("api/[controller]")]
     [ApiController]
+   // [Authorize(Roles = "Admin")]
     public class AccountController : ControllerBase
     {
         private IAccountService _accountService;
@@ -20,7 +26,7 @@ namespace ARMS_API.Controllers.Admin
         private readonly IConfiguration _configuration;
         private readonly IMapper _mapper;
         private UserInput _userInput;
-        public AccountController(IAccountService accountService, IMapper mapper, UserManager<Account> userManager, RoleManager<IdentityRole<Guid>> roleManager, IConfiguration configuration, UserInput userInput, IMajorService majorService)
+        public AccountController(IAccountService accountService, IMapper mapper, UserManager<Account> userManager, RoleManager<IdentityRole<Guid>> roleManager, IConfiguration configuration, UserInput userInput,IMajorService majorService)
         {
             _accountService = accountService;
             _userManager = userManager;
@@ -49,11 +55,11 @@ namespace ARMS_API.Controllers.Admin
                     accounts = accounts
                     .Where(account =>
                     {
-                        string fullname = _userInput.NormalizeText(account?.Fullname ?? "");
-                        string phone = _userInput.NormalizeText(account?.Phone ?? "");
-                        string major = _userInput.NormalizeText(account?.Major?.MajorName ?? "");
-                        return fullname.Contains(searchTerm) || phone.Contains(searchTerm) || major.Contains(searchTerm);
-                    })
+                                    string fullname = _userInput.NormalizeText(account?.Fullname ?? "");
+                                    string phone = _userInput.NormalizeText(account?.Phone ?? "");
+                                    string major = _userInput.NormalizeText(account?.Major?.MajorName ?? "");
+                                    return fullname.Contains(searchTerm) || phone.Contains(searchTerm)|| major.Contains(searchTerm);
+                                })
                                 .ToList();
                 }
                 // Lấy vai trò cho từng tài khoản
@@ -78,7 +84,7 @@ namespace ARMS_API.Controllers.Admin
                         .ToList();
                 }
 
-
+                
                 // Paging
                 result.PageCount = (int)Math.Ceiling(accounts.Count() / (double)result.PageSize);
                 var accs = accounts
@@ -86,7 +92,7 @@ namespace ARMS_API.Controllers.Admin
                     .Take((int)result.PageSize)
                     .ToList();
                 var accountDTOs = _mapper.Map<List<Account_DTO>>(accs);
-
+            
                 foreach (var dto in accountDTOs)
                 {
                     if (rolesDictionary.TryGetValue(dto.Id.ToString(), out var roleName))
@@ -117,8 +123,8 @@ namespace ARMS_API.Controllers.Admin
                 account.Major = await _majorService.GetMajor(account.MajorId);
                 // Lấy vai trò cho từng tài khoản
                 var rolesDictionary = new Dictionary<string, string>();
-                var roles = await _userManager.GetRolesAsync(account);
-                rolesDictionary[account.Id.ToString()] = roles.FirstOrDefault() ?? "No Role";
+                    var roles = await _userManager.GetRolesAsync(account);
+                    rolesDictionary[account.Id.ToString()] = roles.FirstOrDefault() ?? "No Role";
                 var accountDTO = _mapper.Map<Account_DTO>(account);
                 if (rolesDictionary.TryGetValue(account.Id.ToString(), out var roleName))
                 {
@@ -217,7 +223,7 @@ namespace ARMS_API.Controllers.Admin
                     rolesDictionary[account.Id.ToString()] = roles.FirstOrDefault() ?? "No Role";
                 }
                 // Lọc theo vai trò nếu có tham số 'role'
-                if (TypeAccount != null)
+                if (TypeAccount!=null)
                 {
                     accounts = accounts
                         .Where(ac => ac.TypeAccount == TypeAccount)
@@ -264,8 +270,7 @@ namespace ARMS_API.Controllers.Admin
             {
                 // Map DTO to the Account entity
                 var account = _mapper.Map<Account>(model);
-                if (model.UserName == null)
-                {
+                if (model.UserName==null) {
                     account.UserName = model.StudentCode;
                 }
                 var user = await _userManager.FindByNameAsync(model.UserName);
@@ -343,7 +348,7 @@ namespace ARMS_API.Controllers.Admin
                 account.Dob = model.Dob ?? account.Dob;
                 account.Gender = model.Gender ?? account.Gender;
                 account.isAccountActive = model.isAccountActive;
-                account.Email = model.Email ?? account.Email;
+                account.Email = model.Email?? account.Email;
                 account.TypeAccount = model.TypeAccount;
 
                 // Update account in the database

@@ -13,7 +13,7 @@ namespace ARMS_API.Controllers.AdmissionOfficer
     [Route("api/admin-officer/[controller]")]
 
     [ApiController]
-    //[Authorize(Roles = "AdminOfficer")]
+    [Authorize(Roles = "AdminOfficer")]
     public class StudentConsultationController : ControllerBase
     {
         private IStudentConsultationService _studentConsultationService;
@@ -74,7 +74,7 @@ namespace ARMS_API.Controllers.AdmissionOfficer
                 List<StudentConsultation_AO_DTO> responeResult = _mapper.Map<List<StudentConsultation_AO_DTO>>(response);
                 result.Item = responeResult;
 
-
+                
                 return Ok(result);
 
             }

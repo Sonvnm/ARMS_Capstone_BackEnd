@@ -24,7 +24,7 @@ namespace ARMS_API.Controllers.AdmissionOfficer
         private ValidRegisterAdmission _validInput;
         private UserInput _userInput;
         private readonly IEmailService _emailService;
-        public RegisterAdmissionController(IStudentProfileService studentProfileService, IMapper mapper, ValidRegisterAdmission validInput, UserInput userInput, IEmailService emailService)
+        public RegisterAdmissionController(IStudentProfileService studentProfileService, IMapper mapper, ValidRegisterAdmission validInput, UserInput userInput,IEmailService emailService)
         {
             _studentProfileService = studentProfileService;
             _mapper = mapper;
@@ -69,7 +69,7 @@ namespace ARMS_API.Controllers.AdmissionOfficer
                 }
                 if (TypeofStatus != null)
                 {
-                    response = response.Where(x => x.TypeofStatusProfile == TypeofStatus).ToList();
+                    response = response.Where(x=>x.TypeofStatusProfile == TypeofStatus).ToList();
                 }
 
                 //mapper
@@ -119,9 +119,10 @@ namespace ARMS_API.Controllers.AdmissionOfficer
             try
             {
                 StudentProfile responeResult = _mapper.Map<StudentProfile>(AdmissionProfile_DTO);
-                if (AdmissionProfile_DTO.TypeofStatusMajor1 == TypeofStatusForMajor.Fail)
+                if (responeResult.TypeofStatusMajor1 == TypeofStatusForMajor.Fail && responeResult.TypeofStatusMajor2 == TypeofStatusForMajor.Fail)
                 {
-                    responeResult.TypeofStatusMajor = TypeofStatusForMajor.Fail;
+                    responeResult.TypeofStatusMajor1 = TypeofStatusForMajor.Fail;
+                    responeResult.TypeofStatusMajor2 = TypeofStatusForMajor.Fail;
                     responeResult.TypeofStatusProfile = TypeofStatus.Done;
                 }
                 await _studentProfileService.UpdateStudentRegister(responeResult);
@@ -154,9 +155,10 @@ namespace ARMS_API.Controllers.AdmissionOfficer
                     });
                 }
                 stf.TypeofStatusProfile = AdmissionProfile_UpdateStatus_DTO.TypeofStatusProfile;
-                if (AdmissionProfile_UpdateStatus_DTO.TypeofStatusMajor1 == TypeofStatusForMajor.Fail)
+                if (AdmissionProfile_UpdateStatus_DTO.TypeofStatusMajor1 == TypeofStatusForMajor.Fail && AdmissionProfile_UpdateStatus_DTO.TypeofStatusMajor2 == TypeofStatusForMajor.Fail)
                 {
-                    stf.TypeofStatusMajor = TypeofStatusForMajor.Fail;
+                    stf.TypeofStatusMajor1 = TypeofStatusForMajor.Fail;
+                    stf.TypeofStatusMajor2 = TypeofStatusForMajor.Fail;
                     stf.TypeofStatusProfile = TypeofStatus.Done;
                     _ = Task.Run(async () =>
                     {

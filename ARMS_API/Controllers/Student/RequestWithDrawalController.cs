@@ -6,57 +6,44 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Service.AccountSer;
 using Service.RequestChangeMajorSer;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace ARMS_API.Controllers.Student
 {
     [Route("api/[controller]")]
     [ApiController]
     [Authorize(Roles = "Student")]
-    public class RequestWithDrawalController : BaseController
+    public class RequestWithDrawalController : ControllerBase
     {
-        private readonly IRequestService _requestService;
-
-        public RequestWithDrawalController(
-            IRequestService requestService,
-            IMapper mapper,
-            IAccountService accountService) : base(accountService, mapper)
+        private IRequestService _request;
+        private IAccountService _accountService;
+        private readonly IMapper _mapper;
+        public RequestWithDrawalController(IRequestService requestChangeMajorService, IMapper mapper, IAccountService accountService)
         {
-            _requestService = requestService;
+            _request = requestChangeMajorService;
+            _mapper = mapper;
+            _accountService = accountService;
         }
-
-        // GET: api/RequestWithDrawal/get-request-withdrawal
-        [HttpGet("get-request-withdrawal")]
-        public async Task<IActionResult> GetRequestWithdrawal()
+        [HttpGet("get-request-with-drawal")]
+        public async Task<IActionResult> GetRequestWithDrawal()
         {
             try
             {
-                var userId = GetUserId(); // Retrieve user ID
-                var requests = await _requestService.GetRequestWithDrawalsByID(userId);
-
-                if (requests == null || requests.Count == 0)
+                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId))
                 {
-                    return Ok(new { Status = true, Message = "No withdrawal requests found." });
+                    return Unauthorized(new ResponseViewModel()
+                    {
+                        Status = false,
+                        Message = "Vui lòng đăng nhập lại để tiếp tục sử dụng!"
+                    });
                 }
+                List<Request> request = await _request.GetRequestWithDrawalsByID(Guid.Parse(userId));
+                List<RequestWithDrawalDTO> responeResult = _mapper.Map<List<RequestWithDrawalDTO>>(request);
+                return Ok(responeResult);
 
-                var response = _mapper.Map<List<RequestWithDrawalDTO>>(requests);
-                return Ok(response);
             }
-            catch (UnauthorizedAccessException ex)
+            catch (Exception)
             {
-                return Unauthorized(new ResponseViewModel
-                {
-                    Status = false,
-                    Message = ex.Message
-                });
-            }
-            catch (Exception ex)
-            {
-                // Log the exception for debugging purposes
-                // Example: _logger.LogError(ex, "Error occurred while fetching withdrawal requests.");
-
                 return BadRequest(new ResponseViewModel
                 {
                     Status = false,
@@ -64,61 +51,57 @@ namespace ARMS_API.Controllers.Student
                 });
             }
         }
-
-        // POST: api/RequestWithDrawal/add-request-withdrawal
-        [HttpPost("add-request-withdrawal")]
-        public async Task<IActionResult> AddRequestWithdrawal([FromBody] RequestWithDrawal_Student_DTO dto)
+        [HttpPost("add-request-change-major")]
+        public async Task<IActionResult> AddRegisterAdmission([FromBody] RequestWithDrawal_Student_DTO RequestWithDrawal_Student_DTO)
         {
             try
             {
-                if (dto == null)
+
+                if (RequestWithDrawal_Student_DTO == null)
                 {
-                    return BadRequest(new ResponseViewModel
+                    return BadRequest(new ResponseViewModel()
                     {
                         Status = false,
                         Message = "Không nhận được dữ liệu yêu cầu!"
                     });
                 }
-
-                var userId = GetUserId();
-                var account = await _accountService.GetAccountByUserId(userId);
+                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return Unauthorized(new ResponseViewModel()
+                    {
+                        Status = false,
+                        Message = "Vui lòng đăng nhập lại để tiếp tục sử dụng!"
+                    });
+                }
+                //get acccount by userId
+                var account = await _accountService.GetAccountByUserId(Guid.Parse(userId));
                 if (account == null)
                 {
-                    return BadRequest(new ResponseViewModel
+                    return BadRequest(new ResponseViewModel()
                     {
                         Status = false,
                         Message = "Không tìm thấy tài khoản người dùng!"
                     });
                 }
+                //mapper
+                Request Request = _mapper.Map<Request>(RequestWithDrawal_Student_DTO);
+                Request.Status = TypeofRequestChangeMajor.Inprocess;
+                Request.AccountId = Guid.Parse(userId);
+                Request.CampusId = account.CampusId;
+                Request.isRequestChangeMajor = false;
+                Request.DateRequest = DateTime.UtcNow;
 
-                var request = _mapper.Map<Request>(dto);
-                request.Status = TypeofRequestChangeMajor.Inprocess;
-                request.AccountId = userId;
-                request.CampusId = account.CampusId;
-                request.isRequestChangeMajor = false; // No major change for withdrawal
-                request.DateRequest = DateTime.UtcNow;
-
-                await _requestService.AddNewRequest(request);
-
-                return Ok(new ResponseViewModel
+                //add new
+                await _request.AddNewRequest(Request);
+                return Ok(new ResponseViewModel()
                 {
                     Status = true,
                     Message = "Gửi yêu cầu thành công!"
                 });
             }
-            catch (UnauthorizedAccessException ex)
-            {
-                return Unauthorized(new ResponseViewModel
-                {
-                    Status = false,
-                    Message = ex.Message
-                });
-            }
             catch (Exception ex)
             {
-                // Log the exception for debugging purposes
-                // Example: _logger.LogError(ex, "Error occurred while adding a withdrawal request.");
-
                 return BadRequest(new ResponseViewModel
                 {
                     Status = false,

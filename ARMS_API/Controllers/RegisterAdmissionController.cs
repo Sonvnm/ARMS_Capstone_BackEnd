@@ -44,6 +44,7 @@ namespace ARMS_API.Controllers
         private readonly IAdmissionInformationService _admissionInformationService;
         private readonly IAdmissionTimeService _admissionTimeService;
         private readonly IEmailService _emailService;
+        private readonly IEmailNotifyService _emailNotifyService;
         private readonly ILocationService _locationService;
         private readonly IPriorityService _priorityService;
         private readonly IAccountService _accountService;
@@ -64,6 +65,7 @@ namespace ARMS_API.Controllers
             IEmailService emailService,
             ILocationService locationService,
             IPriorityService priorityService,
+            IEmailNotifyService emailNotifyService,
             IAccountService accountService,
             IRequestNotificationService requestNotificationService,
             ICampusService campusService,
@@ -85,6 +87,7 @@ namespace ARMS_API.Controllers
             _emailService = emailService;
             _locationService = locationService;
             _priorityService = priorityService;
+            _emailNotifyService = emailNotifyService;
             _accountService = accountService;
             _requestNotificationService = requestNotificationService;
             _campusService = campusService;
@@ -171,14 +174,14 @@ namespace ARMS_API.Controllers
                     </div>
                 </body>
                 </html>";
-                    var emailRequest = new EmailRequest
+                    var emailRequest = new EmailRequestNotify
                     {
                         ToEmail = studentProfile.EmailStudent,
                         Subject = "Thông báo nhập học thành công!",
                         Body = Body,
                     };
 
-                    await _emailService.SendEmailByHTMLAsync(emailRequest);
+                    await _emailNotifyService.SendEmailByHTMLAsync(emailRequest);
                 });
 
                 var accounts = await _accountService.GetAccountStudent(studentProfile.CampusId);
@@ -186,7 +189,8 @@ namespace ARMS_API.Controllers
                 string formattedAccountCount = accountCount.ToString("D4");
                 string StudentCode = "";
                 string major = "";
-                if (studentProfile.TypeofStatusMajor == TypeofStatusForMajor.Pass) major = studentProfile.Major;
+                if (studentProfile.TypeofStatusMajor1 == TypeofStatusForMajor.Pass) major = studentProfile.Major1;
+                if (studentProfile.TypeofStatusMajor2 == TypeofStatusForMajor.Pass) major = studentProfile.Major2;
                 if (accounts != null)
                 {
 
@@ -252,18 +256,21 @@ namespace ARMS_API.Controllers
                 StudentProfile studentProfile = _mapper.Map<StudentProfile>(registerAdmissionProfileDTO);
 
                 studentProfile.TypeofStatusProfile = TypeofStatus.WaitingPaymentRegisterAdmission;
-                studentProfile.TypeofStatusMajor = TypeofStatusForMajor.Pending;
+                studentProfile.TypeofStatusMajor1 = TypeofStatusForMajor.Pending;
+                studentProfile.TypeofStatusMajor2 = TypeofStatusForMajor.Pending;
                 studentProfile.TimeRegister = DateTime.Now;
 
                 AdmissionTime response = await _admissionTimeService.GetAdmissionTime(registerAdmissionProfileDTO.CampusId);
                 studentProfile.AdmissionTimeId = response.AdmissionTimeId;
 
                 //add new
-                Guid id = await _studentProfileService.AddStudentProfile(studentProfile);
+                await _studentProfileService.AddStudentProfile(studentProfile);
 
                 // send email
-                var major = await _majorService.GetMajor(registerAdmissionProfileDTO.Major);
+                var major = await _majorService.GetMajor(registerAdmissionProfileDTO.Major1);
                 string major1 = major.MajorName;
+                var majorn2 = await _majorService.GetMajor(registerAdmissionProfileDTO.Major2);
+                string major2 = majorn2.MajorName;
                 var gender = registerAdmissionProfileDTO.Gender == true ? "Nam" : "Nữ";
                 var address = await _locationService.GetFullAddress(registerAdmissionProfileDTO.Province, registerAdmissionProfileDTO.District, registerAdmissionProfileDTO.Ward, registerAdmissionProfileDTO.SpecificAddress);
                 //điểm ưu tiên
@@ -289,7 +296,7 @@ namespace ARMS_API.Controllers
 
 
                 // Hình thức xét tuyển
-                var TypeOfDiplomaMajor1 = registerAdmissionProfileDTO.TypeOfDiplomaMajor switch
+                var TypeOfDiplomaMajor1 = registerAdmissionProfileDTO.TypeOfDiplomaMajor1 switch
                 {
                     TypeOfDiploma.Tot_nghiep_THCS => "Tốt nghiệp THCS",
                     TypeOfDiploma.Tot_nghiep_THPT => "Tốt nghiệp THPT",
@@ -299,212 +306,231 @@ namespace ARMS_API.Controllers
                     TypeOfDiploma.Xet_diem_thi_THPT => "Xét điểm thi THPT",
                     _ => "Không có thông tin"
                 };
-                _ = Task.Run(async () =>
+                var TypeOfDiplomaMajor2 = registerAdmissionProfileDTO.TypeOfDiplomaMajor2 switch
                 {
-
-                    var Body = $@"<!DOCTYPE html>
-                <html lang=""en"">
-                <head>
-                    <meta charset=""UTF-8"">
-                    <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
-                    <title>Thông tin Đăng ký Tuyển sinh</title>
-                    <style>
-                        body {{  
-                            font-family: Arial, sans-serif;
-                            line-height: 1.6;
-                            margin: 20px;
-                        }}
-                        .container {{
-                            max-width: 800px;
-                            margin: 0 auto;
-                            border: 1px solid #ddd;
-                            border-radius: 10px;
-                            padding: 20px;
-                            background-color: #f9f9f9;
-                        }}
-                        h1 {{
-                            text-align: center;
-                            color: #333;
-                        }}
-                        table {{
-                            width: 100%;
-                            border-collapse: collapse;
-                            margin: 20px 0;
-                        }}
-                        th, td {{
-                            padding: 10px;
-                            border: 1px solid #ddd;
-                            text-align: left;
-                        }}
-                        th {{
-                            background-color: #f4f4f4;
-                        }}
-                    </style>
-                </head>
-                <body>
-                    <div class=""container"">
-                        <h1 style=""color: orange"">Thông tin đăng ký Tuyển sinh</h1>
-                        <p>Thân gửi bạn 
-                            <strong>{registerAdmissionProfileDTO.Fullname},</strong>
-                        </p>
-                        <p>Chúng tôi rất vui vì nhận được sự quan tâm từ bạn. 
-                            Dưới đây là thông tin đăng ký tuyển sinh của bạn:</p>
-                        <table>
-                            <tr>
-                                <th>Họ và tên</th>
-                                <td>{registerAdmissionProfileDTO.Fullname}</td>
-                            </tr>
-                            <tr>
-                                <th>Ngày sinh</th>
-                                <td>{registerAdmissionProfileDTO.Dob}</td>
-                            </tr>
-                            <tr>
-                                <th>Giới tính</th>
-                                 <td>{gender}</td>
-                            </tr>
-                            <tr>
-                                <th>Dân tộc</th>
-                                <td>{registerAdmissionProfileDTO.Nation}</td>
-                            </tr>
-                            </tr>
-                            <tr>
-                                <th>Địa chỉ</th>
-                                 <td>{address}</td>
-                            </tr>
-                            <tr>
-                                <th>Số căn cước công dân</th>
-                                <td>{registerAdmissionProfileDTO.CitizenIentificationNumber}</td>
-                            </tr>
-                            <tr>
-                                <th>Ngày cấp</th>
-                                <td>{registerAdmissionProfileDTO.CIDate}</td>
-                            </tr>
-                            <tr>
-                                <th>Nơi cấp</th>
-                                <td>{registerAdmissionProfileDTO.CIAddress}</td>
-                            </tr>
-                            <tr>
-                                <th>Email</th>
-                                <td>{registerAdmissionProfileDTO.EmailStudent}</td>
-                            </tr>
-                            <tr>
-                                <th>Số điện thoại</th>
-                                <td>{registerAdmissionProfileDTO.PhoneStudent}</td>
-                            </tr>
-                            <tr>
-                                <th>Trường THPT</th>
-                                <td>{registerAdmissionProfileDTO.SchoolName}</td>
-                            </tr>
-                            <tr>
-                                <th>Năm tốt nghiệp</th>
-                                 <td>{registerAdmissionProfileDTO.YearOfGraduation}</td>
-                            </tr>
-
-                            <tr>
-                                <th>Thông tin phụ huynh</th>
-                                <td><strong>Họ và tên:</strong> {registerAdmissionProfileDTO.FullnameParents}<br/>
-                                            <strong>Số điện thoại:</strong> {registerAdmissionProfileDTO.PhoneParents}
-                                </td>
-                            </tr>
-                            <tr>
-                                <th>Ngành đăng ký</th>
-                               <td>
-                                    {major}
-                                </td>
-                            </tr>
-                            <tr>
-                                <th>Ưu tiên</th>
-                                <td>
-                                    <strong> Đối tượng:</strong> {priorityName}<br/>
-                                        <strong>Mô tả:</strong> {priorityMessage}
-                                </td>
-                            </tr>
-                            <tr>
-                                <th>Hình thức xét tuyển </th>
-                                <td> 
-                                       {TypeOfDiplomaMajor1}
-                                </td>
-                            </tr>
+                    TypeOfDiploma.Tot_nghiep_THCS => "Tốt nghiệp THCS",
+                    TypeOfDiploma.Tot_nghiep_THPT => "Tốt nghiệp THPT",
+                    TypeOfDiploma.Tot_nghiep_CD_DH => "Tốt nghiệp CĐ/ĐH",
+                    TypeOfDiploma.Xet_hoc_ba_THPT => "Xét học bạ THPT",
+                    TypeOfDiploma.LienThong => "Liên thông",
+                    TypeOfDiploma.Xet_diem_thi_THPT => "Xét điểm thi THPT",
+                    _ => "Không có thông tin"
+                };
 
 
-                        </table>    
 
-                        <p>Chúng tôi sẽ xử lý thông tin này và sẽ liên hệ lại với bạn trong thời gian sớm nhất.</p>
-                        <p>Trân trọng,</p>
-                        <p>Phòng Tuyển sinh</p>
-                    </div>
-                </body>
-                </html>";
-                    var emailRequest = new EmailRequest
-                    {
-                        ToEmail = registerAdmissionProfileDTO.EmailStudent,
-                        Subject = "Thông báo đăng ký hồ sơ tuyển sinh thành công!",
-                        Body = Body,
-                    };
+                //_ = Task.Run(async () =>
+                //{
 
-                    await _emailService.SendEmailByHTMLAsync(emailRequest);
-                });
-                //thông báo tới các admission officer
-                List<Account> accounts = await _accountService.GetAO(registerAdmissionProfileDTO.CampusId);
-                _ = Task.Run(async () =>
+                //    var Body = $@"<!DOCTYPE html>
+                //<html lang=""en"">
+                //<head>
+                //    <meta charset=""UTF-8"">
+                //    <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
+                //    <title>Thông tin Đăng ký Tuyển sinh</title>
+                //    <style>
+                //        body {{  
+                //            font-family: Arial, sans-serif;
+                //            line-height: 1.6;
+                //            margin: 20px;
+                //        }}
+                //        .container {{
+                //            max-width: 800px;
+                //            margin: 0 auto;
+                //            border: 1px solid #ddd;
+                //            border-radius: 10px;
+                //            padding: 20px;
+                //            background-color: #f9f9f9;
+                //        }}
+                //        h1 {{
+                //            text-align: center;
+                //            color: #333;
+                //        }}
+                //        table {{
+                //            width: 100%;
+                //            border-collapse: collapse;
+                //            margin: 20px 0;
+                //        }}
+                //        th, td {{
+                //            padding: 10px;
+                //            border: 1px solid #ddd;
+                //            text-align: left;
+                //        }}
+                //        th {{
+                //            background-color: #f4f4f4;
+                //        }}
+                //    </style>
+                //</head>
+                //<body>
+                //    <div class=""container"">
+                //        <h1 style=""color: orange"">Thông tin đăng ký Tuyển sinh</h1>
+                //        <p>Thân gửi bạn 
+                //            <strong>{registerAdmissionProfileDTO.Fullname},</strong>
+                //        </p>
+                //        <p>Chúng tôi rất vui vì nhận được sự quan tâm từ bạn. 
+                //            Dưới đây là thông tin đăng ký tuyển sinh của bạn:</p>
+                //        <table>
+                //            <tr>
+                //                <th>Họ và tên</th>
+                //                <td>{registerAdmissionProfileDTO.Fullname}</td>
+                //            </tr>
+                //            <tr>
+                //                <th>Ngày sinh</th>
+                //                <td>{registerAdmissionProfileDTO.Dob}</td>
+                //            </tr>
+                //            <tr>
+                //                <th>Giới tính</th>
+                //                 <td>{gender}</td>
+                //            </tr>
+                //            <tr>
+                //                <th>Dân tộc</th>
+                //                <td>{registerAdmissionProfileDTO.Nation}</td>
+                //            </tr>
+                //            </tr>
+                //            <tr>
+                //                <th>Địa chỉ</th>
+                //                 <td>{address}</td>
+                //            </tr>
+                //            <tr>
+                //                <th>Số căn cước công dân</th>
+                //                <td>{registerAdmissionProfileDTO.CitizenIentificationNumber}</td>
+                //            </tr>
+                //            <tr>
+                //                <th>Ngày cấp</th>
+                //                <td>{registerAdmissionProfileDTO.CIDate}</td>
+                //            </tr>
+                //            <tr>
+                //                <th>Nơi cấp</th>
+                //                <td>{registerAdmissionProfileDTO.CIAddress}</td>
+                //            </tr>
+                //            <tr>
+                //                <th>Email</th>
+                //                <td>{registerAdmissionProfileDTO.EmailStudent}</td>
+                //            </tr>
+                //            <tr>
+                //                <th>Số điện thoại</th>
+                //                <td>{registerAdmissionProfileDTO.PhoneStudent}</td>
+                //            </tr>
+                //            <tr>
+                //                <th>Trường THPT</th>
+                //                <td>{registerAdmissionProfileDTO.SchoolName}</td>
+                //            </tr>
+                //            <tr>
+                //                <th>Năm tốt nghiệp</th>
+                //                 <td>{registerAdmissionProfileDTO.YearOfGraduation}</td>
+                //            </tr>
+
+                //            <tr>
+                //                <th>Thông tin phụ huynh</th>
+                //                <td><strong>Họ và tên:</strong> {registerAdmissionProfileDTO.FullnameParents}<br/>
+                //                            <strong>Số điện thoại:</strong> {registerAdmissionProfileDTO.PhoneParents}
+                //                </td>
+                //            </tr>
+                //            <tr>
+                //                <th>Ngành đăng ký</th>
+                //               <td>
+                //                    <strong>Ngành 1:</strong> {major1}<br/>
+                //                    <strong>Ngành 2:</strong> {major2}
+                //                </td>
+                //            </tr>
+                //            <tr>
+                //                <th>Ưu tiên</th>
+                //                <td>
+                //                    <strong> Đối tượng:</strong> {priorityName}<br/>
+                //                        <strong>Mô tả:</strong> {priorityMessage}
+                //                </td>
+                //            </tr>
+                //            <tr>
+                //                <th>Hình thức xét tuyển </th>
+                //                <td> 
+                //                        <strong>Nguyện vọng 1:</strong> {TypeOfDiplomaMajor1}<br/>
+                //                        <strong>Nguyện vọng 2:</strong> {TypeOfDiplomaMajor2}
+                //                </td>
+                //            </tr>
+
+
+                //        </table>    
+
+                //        <p>Chúng tôi sẽ xử lý thông tin này và sẽ liên hệ lại với bạn trong thời gian sớm nhất.</p>
+                //        <p>Trân trọng,</p>
+                //        <p>Phòng Tuyển sinh</p>
+                //    </div>
+                //</body>
+                //</html>";
+                //    var emailRequest = new EmailRequestNotify
+                //    {
+                //        ToEmail = registerAdmissionProfileDTO.EmailStudent,
+                //        Subject = "Thông báo đăng ký hồ sơ tuyển sinh thành công!",
+                //        Body = Body,
+                //    };
+
+                //    await _emailNotifyService.SendEmailByHTMLAsync(emailRequest);
+                //});
+                // thông báo tới các admission officer
+                // List<Account> accounts = await _accountService.GetAO(registerAdmissionProfileDTO.CampusId);
+                //_ = Task.Run(async () =>
+                //{
+                //    foreach (var item in accounts)
+                //    {
+                //        var emailRequest = new EmailRequest
+                //        {
+                //            ToEmail = item.Email,
+                //            Subject = "Học sinh " + registerAdmissionProfileDTO.Fullname + " đã nộp hồ sơ thành công!",
+                //            Body = $@"<!DOCTYPE html>
+                //                    <html lang=""en"">
+                //                    <head>
+                //                        <meta charset=""UTF-8"">
+                //                        <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
+                //                        <title>Thông tin Đăng ký Tuyển sinh</title>
+                //                        <style>
+                //                            body {{  
+                //                                font-family: Arial, sans-serif;
+                //                                line-height: 1.6;
+                //                                margin: 20px;
+                //                            }}
+                //                            .container {{
+                //                                max-width: 800px;
+                //                                margin: 0 auto;
+                //                                border: 1px solid #ddd;
+                //                                border-radius: 10px;
+                //                                padding: 20px;
+                //                                background-color: #f9f9f9;
+                //                            }}
+                //                            h1 {{
+                //                                text-align: center;
+                //                                color: #333;
+                //                            }}
+
+                //                        </style>
+                //                    </head>
+                //                    <body>
+                //                        <div class=""container"">
+                //                            <h1 style=""color: orange"">Thông tin tuyển sinh</h1>
+                //                            <p>Hồ sơ của thí sinh {registerAdmissionProfileDTO.Fullname} đã đăng ký thành công vui lòng kiểm tra và phản hồi trong thời gian sớm nhất
+                //                            <p>Trân trọng,</p>
+                //                            <p>Hệ thống tuyển sinh</p>
+                //                        </div>
+                //                    </body>
+                //                    </html>"
+                //        };
+
+                //        await _emailService.SendEmailByHTMLAsync(emailRequest);
+                //        RequestNotification requestNotification = new RequestNotification()
+                //        {
+                //            SendTo = item.Id,
+                //            Content = "Hồ sơ đăng ký mới",
+                //            Subject = "Học sinh " + registerAdmissionProfileDTO.Fullname + " đăng ký thành công!",
+                //            TimeSend = DateTime.Now
+                //        };
+                //        _requestNotificationService.AddNewRequest(requestNotification);
+                //    }
+                //});
+
+                return Ok(new ResponseViewModel()
                 {
-                    foreach (var item in accounts)
-                    {
-                        var emailRequest = new EmailRequest
-                        {
-                            ToEmail = item.Email,
-                            Subject = "Học sinh " + registerAdmissionProfileDTO.Fullname + " đã nộp hồ sơ thành công!",
-                            Body = $@"<!DOCTYPE html>
-                                    <html lang=""en"">
-                                    <head>
-                                        <meta charset=""UTF-8"">
-                                        <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
-                                        <title>Thông tin Đăng ký Tuyển sinh</title>
-                                        <style>
-                                            body {{  
-                                                font-family: Arial, sans-serif;
-                                                line-height: 1.6;
-                                                margin: 20px;
-                                            }}
-                                            .container {{
-                                                max-width: 800px;
-                                                margin: 0 auto;
-                                                border: 1px solid #ddd;
-                                                border-radius: 10px;
-                                                padding: 20px;
-                                                background-color: #f9f9f9;
-                                            }}
-                                            h1 {{
-                                                text-align: center;
-                                                color: #333;
-                                            }}
-
-                                        </style>
-                                    </head>
-                                    <body>
-                                        <div class=""container"">
-                                            <h1 style=""color: orange"">Thông tin tuyển sinh</h1>
-                                            <p>Hồ sơ của thí sinh {registerAdmissionProfileDTO.Fullname} đã đăng ký thành công vui lòng kiểm tra và phản hồi trong thời gian sớm nhất
-                                            <p>Trân trọng,</p>
-                                            <p>Hệ thống tuyển sinh</p>
-                                        </div>
-                                    </body>
-                                    </html>"
-                        };
-
-                        await _emailService.SendEmailByHTMLAsync(emailRequest);
-                        RequestNotification requestNotification = new RequestNotification()
-                        {
-                            SendTo = item.Id,
-                            Content = "Hồ sơ đăng ký mới",
-                            Subject = "Học sinh " + registerAdmissionProfileDTO.Fullname + " đăng ký thành công!",
-                            TimeSend = DateTime.Now
-                        };
-                        _requestNotificationService.AddNewRequest(requestNotification);
-                    }
+                    Status = true,
+                    Message = "Đăng ký thành công!"
                 });
-
-                return Ok(id);
             }
             catch (Exception ex)
             {
@@ -576,14 +602,14 @@ namespace ARMS_API.Controllers
                     </div>
                 </body>
                 </html>";
-                    var emailRequest = new EmailRequest
+                    var emailRequest = new EmailRequestNotify
                     {
                         ToEmail = registerAdmissionProfileDTO.EmailStudent,
                         Subject = "Thông báo chỉnh sửa hồ sơ tuyển sinh thành công!",
                         Body = Body,
                     };
 
-                    await _emailService.SendEmailByHTMLAsync(emailRequest);
+                    await _emailNotifyService.SendEmailByHTMLAsync(emailRequest);
                 });
 
                 return Ok(new ResponseViewModel()
@@ -629,6 +655,7 @@ namespace ARMS_API.Controllers
                 });
             }
         }
+        //[Authorize(Roles = "guest")]
         [HttpPost("pay-register-admission")]
         public async Task<IActionResult> PayRegisterAdmission([FromBody] PayFeeAdmissionDTO payFeeAdmissionDTO)
         {
@@ -644,7 +671,8 @@ namespace ARMS_API.Controllers
                 }
                 StudentProfile stf = await _studentProfileService.GetStudentProfileBySpIdAsync(payFeeAdmissionDTO.SpId);
                 stf.TypeofStatusProfile = TypeofStatus.SuccessProfileRegister;
-                stf.TypeofStatusMajor = TypeofStatusForMajor.Inprocess;
+                stf.TypeofStatusMajor1 = TypeofStatusForMajor.Inprocess;
+                stf.TypeofStatusMajor2 = TypeofStatusForMajor.Inprocess;
                 PayFeeAdmission PayFeeAdmission = _mapper.Map<PayFeeAdmission>(payFeeAdmissionDTO);
                 await _payFeeAdmissionService.AddNewPayFeeAdmission(PayFeeAdmission);
                 return Ok(new ResponseViewModel()
@@ -683,7 +711,7 @@ namespace ARMS_API.Controllers
             emailRequest.Subject = "Send OTP";
             emailRequest.Body = $"OTP của bạn là: {otp}";
             _cache.Set(emailRequest.ToEmail, otp, _otpLifetime);
-            await _emailService.SendEmailAsync(emailRequest);
+            await _emailNotifyService.SendEmailAsync(emailRequest);
             return Ok(new { Message = "Mã OTP đã được gửi đến email của bạn!", Email = sp.EmailStudent });
         }
         [HttpPost("verify-OTP")]

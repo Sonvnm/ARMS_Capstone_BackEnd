@@ -1,20 +1,28 @@
-﻿using Data.DTO;
-using Data.Models;
-using System.Text;
+﻿
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using System.Security.Cryptography;
+using System.Text;
+using Data.DTO;
+using Service;
+using Service.VnPaySer;
 using Service.AdmissionInformationSer;
+using Data.Models;
 using Service.MajorSer;
-using Service.VNPaySer;
 
 namespace ARMS_API.Controllers
 {
-    public class VNPayController : Controller
+    [Route("api/[controller]")]
+    [ApiController]
+    public class VNPayController : ControllerBase
     {
         private readonly IVnPayService _vnPayService;
         private readonly IMajorService _majorService;
         private readonly IAdmissionInformationService _admissionInformationService;
         private readonly IConfiguration _configuration;
-        public VNPayController(IVnPayService vnPayService, IAdmissionInformationService admissionInformationService, IMajorService majorService, IConfiguration configuration)
+
+        public VNPayController(IVnPayService vnPayService,IAdmissionInformationService admissionInformationService, IMajorService majorService, IConfiguration configuration)
         {
             _vnPayService = vnPayService;
             _admissionInformationService = admissionInformationService;
@@ -59,7 +67,7 @@ namespace ARMS_API.Controllers
                     Message = "Đã xảy ra lỗi! Vui lòng thử lại sau!"
                 });
             }
-
+           
         }
         [HttpGet("vnpay_return")]
         public IActionResult VNPayReturn()
@@ -142,7 +150,6 @@ namespace ARMS_API.Controllers
                 });
             }
         }
-
 
     }
 }

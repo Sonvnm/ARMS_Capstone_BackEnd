@@ -27,7 +27,7 @@ namespace ARMS_API.Controllers.Admin
             _campusService = campusService;
             _validAdmissionInformation = validAdmissionInformation;
         }
-
+        
         //[HttpPut("update-admission-information")]
         //public async Task<IActionResult> UpdateAdmissionInformation(AdmissionInformation_Update_DTO AdmissionInformationDTO)
         //{

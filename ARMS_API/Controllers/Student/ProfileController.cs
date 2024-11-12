@@ -2,8 +2,10 @@
 using Data.DTO;
 using Data.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Service.AccountSer;
+using Service.RequestChangeMajorSer;
 
 namespace ARMS_API.Controllers.Student
 {
@@ -14,7 +16,7 @@ namespace ARMS_API.Controllers.Student
     {
         private IAccountService _accountService;
         private readonly IMapper _mapper;
-        public ProfileController(IMapper mapper, IAccountService accountService)
+        public ProfileController( IMapper mapper, IAccountService accountService)
         {
             _mapper = mapper;
             _accountService = accountService;

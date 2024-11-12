@@ -24,6 +24,7 @@ namespace ARMS_API.Controllers
         {
             try
             {
+                // lấy ra đợt đang tuyển sinh
                 AdmissionInformation response = await _admissionInformationService.GetAdmissionInformationProcess(CampusId);
                 if (response == null)
                 {

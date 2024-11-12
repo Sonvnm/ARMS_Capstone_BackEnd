@@ -1,14 +1,20 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
+﻿using ARMS_API.Helper;
 using Data.DTO;
 using Data.Models;
 using FirebaseAdmin.Auth;
+using Google.Apis.Auth;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Org.BouncyCastle.Asn1.Ocsp;
+using Service;
+using System.Data;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace ARMS_API.Controllers
 {
@@ -90,9 +96,10 @@ namespace ARMS_API.Controllers
                 });
             }
         }
+
         [HttpPost("gg/login-with-google")]
         [AllowAnonymous]
-        public async Task<IActionResult> LoginWithGoogle([FromBody] GGLoginViewModel GGLoginViewModel) 
+        public async Task<IActionResult> LoginWithGoogle([FromBody] GGLoginViewModel GGLoginViewModel)
         {
             try
             {
@@ -178,6 +185,7 @@ namespace ARMS_API.Controllers
                 return null;
             }
         }
+
         private JwtSecurityToken GetToken(List<Claim> authClaims)
         {
             var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]));
@@ -193,5 +201,6 @@ namespace ARMS_API.Controllers
 
             return token;
         }
+
     }
 }
