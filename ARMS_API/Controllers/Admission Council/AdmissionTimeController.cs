@@ -62,9 +62,31 @@ namespace ARMS_API.Controllers.Admission_Council
         }
 
         [HttpPut("update-admission-time")]
-        public async Task<IActionResult> UpdateAdmissionTime()
+        public async Task<IActionResult> UpdateAdmissionTime(AdmissionTime_Add_DTO admissionTimeDTO)
         {
-            return Ok();
+            try
+            {
+                //check data
+                //await _validAdmissionTime.ValidDataAdmissionTimeUpdate
+                //   (admissionTimeDTO);
+                //mapper
+                AdmissionTime AdmissionTime = _mapper.Map<AdmissionTime>(admissionTimeDTO);
+                await _admissionTimeService.UpdateAdmissionTime(AdmissionTime);
+                return Ok(new ResponseViewModel()
+                {
+                    Status = true,
+                    Message = "Cập nhật thành công!"
+                });
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseViewModel()
+                {
+                    Status = false,
+                    Message = ex.Message
+                });
+            }
         }
     }
 }
