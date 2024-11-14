@@ -14,10 +14,14 @@ namespace Service.EmailSer
     public class EmailService : IEmailService
     {
         private readonly EmailSetting _emailSettings;
+        private readonly Timer _timer;
+        private readonly EmailQueue _queue;
 
-        public EmailService(IOptions<EmailSetting> emailSettings)
+        public EmailService(IOptions<EmailSetting> emailSettings, EmailQueue queue)
         {
             _emailSettings = emailSettings.Value;
+            _timer = new Timer(DoWork, null, TimeSpan.Zero, TimeSpan.FromSeconds(10));
+            _queue = queue;
         }
 
          public async Task<ResponseViewModel> SendEmailAsync(EmailRequest emailRequest)
@@ -84,7 +88,6 @@ namespace Service.EmailSer
         //{
         //    // Lấy email cần gửi từ hàng đợi và xử lý
         //    EmailRequest emailRequest = null;
-
         //    lock (_queue)
         //    {
         //        if (_queue.Count > 0)
@@ -97,8 +100,25 @@ namespace Service.EmailSer
         //    {
         //        try
         //        {
-        //            // Gửi email bằng phương thức đã sửa
-        //            var response = await SendEmailByHTMLAsync(emailRequest);
+        //            // Gửi email
+        //            var message = new MimeMessage();
+        //            message.From.Add(new MailboxAddress("ARMS", _emailSettings.Email));
+        //            message.To.Add(new MailboxAddress("", emailRequest.ToEmail));
+        //            message.Subject = emailRequest.Subject;
+        //            message.Body = new TextPart("html")
+        //            {
+        //                Text = emailRequest.Body
+        //            };
+
+        //            using (var client = new SmtpClient())
+        //            {
+        //                await client.ConnectAsync(_emailSettings.SmtpServer, _emailSettings.Port, SecureSocketOptions.StartTls);
+        //                await client.AuthenticateAsync(_emailSettings.Email, _emailSettings.AppPassword);
+        //                await client.SendAsync(message);
+        //                await client.DisconnectAsync(true);
+        //            }
+
+        //            Console.WriteLine("Gửi mail thành công cho: " + emailRequest.ToEmail);
         //        }
         //        catch (Exception ex)
         //        {
@@ -106,6 +126,32 @@ namespace Service.EmailSer
         //        }
         //    }
         //}
+        private async void DoWork(object state)
+        {
+            // Lấy email cần gửi từ hàng đợi và xử lý
+            EmailRequest emailRequest = null;
+
+            lock (_queue)
+            {
+                if (_queue.Count > 0)
+                {
+                    emailRequest = _queue.Dequeue();
+                }
+            }
+
+            if (emailRequest != null)
+            {
+                try
+                {
+                    // Gửi email bằng phương thức đã sửa
+                    var response = await SendEmailByHTMLAsync(emailRequest);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Lỗi khi gửi email: {ex.Message}");
+                }
+            }
+        }
 
     }
 }

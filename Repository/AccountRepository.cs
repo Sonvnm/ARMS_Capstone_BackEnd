@@ -1,11 +1,11 @@
-﻿using System;
+﻿using Data.ArmsContext;
+using Data.Models;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Data.ArmsContext;
-using Data.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace Repository
 {
@@ -19,9 +19,9 @@ namespace Repository
             try
             {
                 Account Account = await _context.Accounts
-                    .Include(x => x.Major)
+                    .Include(x=>x.Major)
                     .Include(x => x.StudentProfile)
-                    .SingleOrDefaultAsync(x => x.Id == userId);
+                    .SingleOrDefaultAsync(x => x.Id== userId);
                 return Account;
             }
             catch (Exception)

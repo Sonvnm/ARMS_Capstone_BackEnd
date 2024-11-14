@@ -1,13 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Data.ArmsContext;
+﻿using Data.ArmsContext;
 using Data.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Repository;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Service.AccountSer
 {
@@ -28,17 +28,16 @@ namespace Service.AccountSer
         public async Task<List<Account>> GetAccounts(string campusId)
         {
             var allUsers = await _userManager.Users
-                    .Include(x => x.Major)
+                    .Include(x=>x.Major)
                     .Where(user => user.CampusId == campusId && (user.TypeAccount == TypeAccount.Account || user.TypeAccount == TypeAccount.RequestAccountAccept))
                     .ToListAsync();
             return allUsers;
         }
-
         public async Task<List<Account>> GetAccountsRequest(string campusId)
         {
             var allUsers = await _userManager.Users
                     .Include(x => x.Major)
-                    .Where(user => user.CampusId == campusId && (user.TypeAccount == TypeAccount.RequestAccountInProcess || user.TypeAccount == TypeAccount.RequestAccountRejected))
+                    .Where(user => user.CampusId == campusId && ( user.TypeAccount == TypeAccount.RequestAccountInProcess || user.TypeAccount == TypeAccount.RequestAccountRejected))
                     .ToListAsync();
             return allUsers;
         }
@@ -74,7 +73,6 @@ namespace Service.AccountSer
                 throw new Exception("Đã sảy ra lỗi!", ex);
             }
         }
-
         public async Task<List<Account>> GetAO(string campusId)
         {
             try

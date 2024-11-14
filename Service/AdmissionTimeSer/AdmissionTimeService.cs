@@ -1,11 +1,11 @@
-﻿using System;
+﻿using Data.ArmsContext;
+using Data.Models;
+using Repository;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Data.ArmsContext;
-using Data.Models;
-using Repository;
 
 namespace Service.AdmissionTimeSer
 {
@@ -18,6 +18,7 @@ namespace Service.AdmissionTimeSer
             _admissionTimeRepository = new AdmissionTimeRepository(context);
             _admissionInfomationRepository = new AdmissionInfomationRepository(context);
         }
+
         public async Task AddAdmissionTime(AdmissionTime AdmissionTime)
         {
             try
@@ -73,8 +74,10 @@ namespace Service.AdmissionTimeSer
                 throw;
             }
         }
-        public Task<AdmissionTime> GetAdmissionTime(int AIId)
+
+        public Task<AdmissionTime> GetAdmissionTime(int AIId) 
             => _admissionTimeRepository.GetAdmissionTime(AIId);
+
         public async Task<List<AdmissionTime>> GetAdmissionTimes(string CampusId)
         {
             // lấy ra năm đang tuyển sinh
@@ -86,13 +89,12 @@ namespace Service.AdmissionTimeSer
         public async Task<AdmissionTime> GetAdmissionTime(string CampusId)
         {
             DateTime date = DateTime.Now;
-            //// lấy ra năm đang tuyển sinh
+            // lấy ra năm đang tuyển sinh
             var AI = await _admissionInfomationRepository.GetAdmissionInformationProcess(CampusId);
             var result = await _admissionTimeRepository.GetAdmissionTimes(CampusId);
             var respone = result.Where(x => x.AdmissionInformationID == AI.AdmissionInformationID).ToList();
             var AT = respone.FirstOrDefault(x => x.StartRegister <= date && x.EndRegister >= date);
             return AT;
         }
-
     }
 }

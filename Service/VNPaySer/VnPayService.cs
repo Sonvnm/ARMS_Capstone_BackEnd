@@ -1,13 +1,14 @@
-﻿using System;
+﻿using Data.DTO;
+using Data.Models;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Data.Models;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
 
-namespace Service.VNPaySer
+namespace Service.VnPaySer
 {
     public class VnPayService : IVnPayService
     {

@@ -1,11 +1,11 @@
-﻿using System;
+﻿using Data.ArmsContext;
+using Data.Models;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Data.ArmsContext;
-using Data.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace Repository
 {
@@ -26,6 +26,24 @@ namespace Repository
                 throw;
             }
         }
+
+        //public async Task<List<AlumiStudent>> GetAlumiStudents()
+        //{
+        //    try
+        //    {
+        //        List<AlumiStudent> AlumiStudents = await _context.AlumiStudents
+        //            .Include(x=>x.SpecializeMajor)
+        //            .Include(x => x.Campus)
+        //            .ToListAsync();
+        //        return AlumiStudents;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine(ex);
+        //        throw;
+        //    }
+        //}
+
         public async Task<List<Slider>> GetSliders(string campusId)
         {
             try
@@ -41,6 +59,7 @@ namespace Repository
                 throw;
             }
         }
+
         public async Task<List<Campus>> GetCampusesAsync()
         {
             try

@@ -3,49 +3,58 @@ using Data.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Repository
 {
-    public class RequestChangeMajorRepository
+    public interface IRequestChangeMajorRepository
+    {
+        Task<IEnumerable<RequestChangeMajor>> GetByCampusIdAsync(string campusId);
+        Task<IEnumerable<RequestChangeMajor>> GetByAccountIdAsync(Guid accountId);
+    }
+
+    public class RequestChangeMajorRepository : IRequestChangeMajorRepository
     {
         private readonly ArmsDbContext _context;
-        public RequestChangeMajorRepository(ArmsDbContext context) { _context = context; }
-        public async Task<List<RequestChangeMajor>> GetRequestChangeMajors(string campusId)
+
+        public RequestChangeMajorRepository(ArmsDbContext context)
         {
+            _context = context ?? throw new ArgumentNullException(nameof(context));
+        }
+
+        public async Task<IEnumerable<RequestChangeMajor>> GetByCampusIdAsync(string campusId)
+        {
+            if (string.IsNullOrWhiteSpace(campusId))
+                throw new ArgumentException("Campus ID cannot be null or empty.", nameof(campusId));
+
             try
             {
-                var studentConsultations = _context.RequestChangeMajors
-                    .Include(x => x.Account)
-                    .ThenInclude(x=>x.StudentProfile)
-                    .Where(x => x.CampusId.Equals(campusId))
-                    .ToList();
-                return studentConsultations;
+                return await _context.RequestChangeMajors
+                    .Include(rcm => rcm.Account)
+                        .ThenInclude(account => account.StudentProfile)
+                    .Where(rcm => rcm.CampusId == campusId)
+                    .ToListAsync();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
-                throw;
+                throw new InvalidOperationException("Error retrieving RequestChangeMajors by campus ID.", ex);
             }
         }
-        public async Task<List<RequestChangeMajor>> GetRequestChangeMajorsByID(Guid Id)
+
+        public async Task<IEnumerable<RequestChangeMajor>> GetByAccountIdAsync(Guid accountId)
         {
             try
             {
-                var studentConsultations = _context.RequestChangeMajors
-                    .Include(x => x.Account)
-                    .ThenInclude(x => x.StudentProfile)
-                    .Include(x => x.Major)
-                    .Where(x => x.AccountId== Id)
-                    .ToList();
-                return studentConsultations;
+                return await _context.RequestChangeMajors
+                    .Include(rcm => rcm.Account)
+                        .ThenInclude(account => account.StudentProfile)
+                    .Include(rcm => rcm.Major)
+                    .Where(rcm => rcm.AccountId == accountId)
+                    .ToListAsync();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
-                throw;
+                throw new InvalidOperationException("Error retrieving RequestChangeMajors by account ID.", ex);
             }
         }
     }

@@ -1,11 +1,11 @@
-﻿using System;
+﻿using Data.ArmsContext;
+using Data.Models;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Data.ArmsContext;
-using Data.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace Repository
 {
@@ -20,7 +20,7 @@ namespace Repository
             {
 
                 List<AdmissionTime> AdmissionTimes = await _context.AdmissionTimes
-                    .Where(x => x.AdmissionInformation.CampusId == CampusId).ToListAsync();
+                    .Where(x => x.AdmissionInformation.CampusId==CampusId).ToListAsync();
                 return AdmissionTimes;
             }
             catch (Exception)
@@ -59,7 +59,7 @@ namespace Repository
         {
             try
             {
-                _context.AdmissionTimes.AddRangeAsync(AdmissionTime);
+                 _context.AdmissionTimes.AddRangeAsync(AdmissionTime);
                 await _context.SaveChangesAsync();
             }
             catch (Exception)
@@ -79,6 +79,5 @@ namespace Repository
                 throw new Exception("Chỉnh sửa không thành công");
             }
         }
-
     }
 }

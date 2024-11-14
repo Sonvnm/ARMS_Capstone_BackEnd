@@ -1,11 +1,11 @@
-﻿using System;
+﻿using Data.ArmsContext;
+using Data.Models;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Data.ArmsContext;
-using Data.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace Repository
 {
@@ -19,8 +19,8 @@ namespace Repository
             try
             {
                 List<PayFeeAdmission> PayFeeAdmissions = await _context.PayFeeAdmissions
-                    .Include(x => x.StudentProfile)
-                    .Where(x => x.StudentProfile.CampusId == campusId)
+                    .Include(x=>x.StudentProfile)
+                    .Where(x=>x.StudentProfile.CampusId == campusId)
                     .ToListAsync();
                 return PayFeeAdmissions;
 

@@ -1,14 +1,14 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
 using System.Net;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using System.Security.Cryptography;
 
-namespace Service.VNPaySer
+namespace Service.VnPaySer
 {
     public class Utils
     {
@@ -57,3 +57,4 @@ namespace Service.VNPaySer
         }
     }
 }
+
