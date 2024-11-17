@@ -77,12 +77,12 @@ namespace ARMS_API.Controllers.SchoolService
             }
         }
         [HttpGet("get-major-details")]
-        public async Task<IActionResult> GetMajorDetail(string MajorId)
+        public async Task<IActionResult> GetMajorDetail(string MajorId, int AdmissionInformationID)
         {
             try
             {
 
-                MajorAdmission response = await _majorService.GetMajorDetail(MajorId);
+                MajorAdmission response = await _majorService.GetMajorDetail(MajorId, AdmissionInformationID);
                 MajorDTO responeResult = _mapper.Map<MajorDTO>(response);
                 return Ok(responeResult);
 
