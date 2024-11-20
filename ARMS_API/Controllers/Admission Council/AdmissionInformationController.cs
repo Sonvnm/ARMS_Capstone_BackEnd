@@ -77,9 +77,33 @@ namespace ARMS_API.Controllers.Admission_Council
             }
         }
         [HttpPut("update-admission-information")]
-        public async Task<IActionResult> UpdateAdmissionInformation()
+        public async Task<IActionResult> UpdateAdmissionInformation(AdmissionInformation_Update_DTO AdmissionInformationDTO)
         {
-            return Ok();
+            try
+            {
+                var checkdata = await _admissionInformationService.GetAdmissionInformationById(AdmissionInformationDTO.AdmissionInformationID);
+                if (checkdata == null) return NotFound();
+                //check data
+                await _validAdmissionInformation.ValidDataAdmissionInfor(AdmissionInformationDTO, checkdata.CampusId);
+                //mapper
+                AdmissionInformation admissionInformation = _mapper.Map<AdmissionInformation>(AdmissionInformationDTO);
+                await _admissionInformationService.UpdateAdmissionInformation(admissionInformation);
+                return Ok(new ResponseViewModel()
+                {
+                    Status = true,
+                    Message = "Cập nhật thành công!"
+                });
+
+            }
+            catch (Exception ex)
+            {
+
+                return BadRequest((new ResponseViewModel()
+                {
+                    Status = false,
+                    Message = ex.Message
+                }));
+            }
         }
 
     }
