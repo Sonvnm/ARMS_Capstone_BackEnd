@@ -1,0 +1,72 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Data.ArmsContext;
+using Data.Models;
+using Microsoft.EntityFrameworkCore;
+
+namespace Repository
+{
+    public class CampusRepository
+    {
+        private readonly ArmsDbContext _context;
+        public CampusRepository(ArmsDbContext context) { _context = context; }
+        public async Task<int> CountCampus()
+        {
+            try
+            {
+                int campus = _context.Campuses.Count();
+                return campus;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                throw;
+            }
+        }
+        public async Task<List<Slider>> GetSliders(string campusId)
+        {
+            try
+            {
+                List<Slider> sliders = await _context.Sliders
+                    .Where(x => x.CampusId.Equals(campusId))
+                    .ToListAsync();
+                return sliders;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                throw;
+            }
+        }
+        public async Task<List<Campus>> GetCampusesAsync()
+        {
+            try
+            {
+                List<Campus> campuses = await _context.Campuses.ToListAsync();
+                return campuses;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                throw;
+            }
+        }
+
+        public async Task<Campus> GetCampus(string campusId)
+        {
+            try
+            {
+                Campus Campus = await _context.Campuses.FirstOrDefaultAsync(x => x.CampusId.Equals(campusId));
+                return Campus;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+    }
+}

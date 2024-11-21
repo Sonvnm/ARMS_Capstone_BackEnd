@@ -3,22 +3,22 @@ using AutoMapper;
 using Data.DTO;
 using Data.Models;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Service.MajorSer;
+using System.Text.Json;
 
 namespace ARMS_API.Controllers.AdmissionCouncil
 {
     [Route("api/admission-council/[controller]")]
     [ApiController]
-   [Authorize(Roles = "AdmissionCouncil")]
+    [Authorize(Roles = "AdmissionCouncil")]
     public class MajorController : ControllerBase
     {
-
-        private IMajorService _majorService;
-        private ValidMajor _validMajor;
+        private readonly IMajorService _majorService;
+        private readonly ValidMajor _validMajor;
         private readonly IMapper _mapper;
-        private UserInput _userInput;
+        private readonly UserInput _userInput;
+
         public MajorController(IMajorService majorService, IMapper mapper, ValidMajor validMajor, UserInput userInput)
         {
             _majorService = majorService;
@@ -26,129 +26,151 @@ namespace ARMS_API.Controllers.AdmissionCouncil
             _validMajor = validMajor;
             _userInput = userInput;
         }
+
         [HttpPut("update-major")]
-        public async Task<IActionResult> UpdateMajor(Major_Admission_DTO MajorDTO)
+        public async Task<IActionResult> UpdateMajor([FromBody] Major_Admission_DTO majorDTO)
         {
             try
             {
-                MajorAdmission major = _mapper.Map<MajorAdmission>(MajorDTO);
+                // Validate input
+                _validMajor.ValidateMajorInput(majorDTO);
+
+                // Map DTO to entity
+                var major = _mapper.Map<MajorAdmission>(majorDTO);
+
+                // Update major
                 await _majorService.UpdateMajorAdmission(major);
-                return Ok(new ResponseViewModel()
-                {
-                    Status = true,
-                    Message = "Cập nhật thành công!"
-                });
 
+                return Ok(new ApiResponse<string>(true, "Cập nhật thành công!"));
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
-                return BadRequest();
+                return BadRequest(new ApiResponse<string>(false, "Cập nhật thất bại.", ex.Message));
             }
         }
+
         [HttpPost("add-major")]
-        public async Task<IActionResult> AddMajor(Major_Admission_DTO MajorDTO)
+        public async Task<IActionResult> AddMajor([FromBody] Major_Admission_DTO majorDTO)
         {
             try
             {
-                MajorAdmission major = _mapper.Map<MajorAdmission>(MajorDTO);
-                await _majorService.AddMajorAdmision(major);
-                return Ok(new ResponseViewModel()
-                {
-                    Status = true,
-                    Message = "Thêm ngành tuyển sinh thành công!"
-                });
+                // Validate input
+                _validMajor.ValidateMajorInput(majorDTO);
 
+                // Map DTO to entity
+                var major = _mapper.Map<MajorAdmission>(majorDTO);
+
+                // Add new major
+                await _majorService.AddMajorAdmission(major);
+
+                return Ok(new ApiResponse<string>(true, "Thêm ngành tuyển sinh thành công!"));
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
-                return BadRequest();
+                return BadRequest(new ApiResponse<string>(false, "Thêm ngành thất bại.", ex.Message));
             }
         }
+
         [HttpGet("get-majors")]
-        public async Task<IActionResult> GetMajors(string? CampusId, bool? college, string? Search, int CurrentPage)
+        public async Task<IActionResult> GetMajors(string? campusId, bool? college, string? search, int currentPage)
         {
             try
             {
-                ResponeModel<MajorDTO> result = new ResponeModel<MajorDTO>();
-                result.CurrentPage = CurrentPage;
-                result.CampusId = CampusId;
-                result.Search = Search;
+                var responseModel = new ResponeModel<MajorDTO>
+                {
+                    CurrentPage = currentPage,
+                    CampusId = campusId,
+                    Search = search
+                };
 
-                List<MajorAdmission> response = await _majorService.GetMajorsManage(CampusId);
-                if (college != null)
+                // Retrieve majors
+                var majors = await _majorService.GetMajorsManage(campusId);
+
+                // Filter by college
+                if (college == true)
                 {
-                    response = response.Where(x => x.Major.isVocationalSchool == true).ToList();
-                }
-                // Search
-                if (!string.IsNullOrEmpty(Search))
-                {
-                    string searchTerm = _userInput.NormalizeText(Search);
-                    response = response
-                                .Where(major =>
-                                    major != null &&
-                                    (
-                                        _userInput.NormalizeText(major.Major.MajorName ?? "").Contains(searchTerm) ||
-                                        _userInput.NormalizeText(major.Major.MajorCode ?? "").Contains(searchTerm) ||
-                                        _userInput.NormalizeText(major.MajorID ?? "").Contains(searchTerm)
-                                    )
-                                )
-                                .ToList();
+                    majors = majors.Where(m => m.Major.isVocationalSchool == true).ToList();
                 }
 
-                result.PageCount = (int)Math.Ceiling(response.Count() / (double)result.PageSize);
-                var majors = response
-                    .Skip(((int)result.CurrentPage - 1) * (int)result.PageSize)
-                    .Take((int)result.PageSize)
+                // Search functionality
+                if (!string.IsNullOrWhiteSpace(search))
+                {
+                    var normalizedSearch = _userInput.NormalizeText(search);
+                    majors = majors.Where(m =>
+                        m != null &&
+                        (
+                            _userInput.NormalizeText(m.Major.MajorName ?? string.Empty).Contains(normalizedSearch) ||
+                            _userInput.NormalizeText(m.Major.MajorCode ?? string.Empty).Contains(normalizedSearch) ||
+                            _userInput.NormalizeText(m.MajorID ?? string.Empty).Contains(normalizedSearch)
+                        )
+                    ).ToList();
+                }
+
+                // Pagination
+                responseModel.PageCount = (int)Math.Ceiling(majors.Count / (double)responseModel.PageSize);
+                var paginatedMajors = majors
+                    .Skip((currentPage - 1) * responseModel.PageSize)
+                    .Take(responseModel.PageSize)
                     .ToList();
 
-                List<MajorDTO> responeResult = _mapper.Map<List<MajorDTO>>(majors);
-                result.Item = responeResult;
-                result.TotalItems = response.Count;
+                responseModel.Item = _mapper.Map<List<MajorDTO>>(paginatedMajors);
+                responseModel.TotalItems = majors.Count;
 
-                return Ok(result);
-
+                return Ok(responseModel);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
-                return BadRequest();
+                return BadRequest(new ApiResponse<string>(false, "Không thể lấy danh sách ngành.", ex.Message));
             }
         }
+
         [HttpGet("get-major-details")]
-        public async Task<IActionResult> GetMajorDetail(string MajorId)
+        public async Task<IActionResult> GetMajorDetail(string majorId)
         {
             try
             {
+                // Retrieve major details
+                var major = await _majorService.GetMajorDetail(majorId);
+                var response = _mapper.Map<MajorDTO>(major);
 
-                MajorAdmission response = await _majorService.GetMajorDetail(MajorId);
-                MajorDTO responeResult = _mapper.Map<MajorDTO>(response);
-                return Ok(responeResult);
-
+                return Ok(new ApiResponse<MajorDTO>(true, "Lấy chi tiết ngành thành công!", response));
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
-                return BadRequest();
+                return BadRequest(new ApiResponse<string>(false, "Không thể lấy chi tiết ngành.", ex.Message));
             }
         }
-        [HttpGet("get-majors_admission/{ATId}")]
-        public async Task<IActionResult> GetMajorAdmissions(int ATId)
+
+        [HttpGet("get-majors_admission/{atId}")]
+        public async Task<IActionResult> GetMajorAdmissions(int atId)
         {
             try
             {
+                // Retrieve major admissions
+                var majorAdmissions = await _majorService.GetMajorAdmissionsByATId(atId);
+                var response = _mapper.Map<List<Major_AC_DTO>>(majorAdmissions);
 
-                List<MajorAdmission> response = await _majorService.GetMajorAdmissionsByATId(ATId);
-               List<Major_AC_DTO> responeResult = _mapper.Map<List<Major_AC_DTO>>(response);
-                return Ok(responeResult);
-
+                return Ok(new ApiResponse<List<Major_AC_DTO>>(true, "Lấy danh sách ngành tuyển sinh thành công!", response));
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
-                return BadRequest();
+                return BadRequest(new ApiResponse<string>(false, "Không thể lấy danh sách ngành tuyển sinh.", ex.Message));
             }
+        }
+    }
+
+    // API Response Wrapper
+    public class ApiResponse<T>
+    {
+        public bool Status { get; set; }
+        public string Message { get; set; }
+        public T? Data { get; set; }
+
+        public ApiResponse(bool status, string message, T? data = default)
+        {
+            Status = status;
+            Message = message;
+            Data = data;
         }
     }
 }
