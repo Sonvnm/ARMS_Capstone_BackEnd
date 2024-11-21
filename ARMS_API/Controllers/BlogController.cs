@@ -34,14 +34,9 @@ namespace ARMS_API.Controllers
             }
             catch (Exception)
             {
-                return BadRequest(new ResponseViewModel
-                {
-                    Status = false,
-                    Message = "Đã xảy ra lỗi! Vui lòng thử lại sau!"
-                });
+                return BadRequest();
             }
         }
-
         [HttpGet("get-blogs")]
         public async Task<IActionResult> GetBlogs(string? CampusId, string? Search, int CurrentPage, int? CategoryID)
         {
@@ -69,10 +64,10 @@ namespace ARMS_API.Controllers
                                 .ToList();
                 }
 
-                if (CategoryID != 0 && CategoryID != null)
+                if (CategoryID != 0 && CategoryID!=null)
                 {
                     response = response
-                                .Where(blog => blog.BlogCategoryId == CategoryID)
+                                .Where(blog =>blog.BlogCategoryId == CategoryID)
                                 .ToList();
                 };
 
@@ -91,11 +86,7 @@ namespace ARMS_API.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(new ResponseViewModel
-                {
-                    Status = false,
-                    Message = "Đã xảy ra lỗi! Vui lòng thử lại sau!"
-                });
+                return BadRequest(ex.Message);
             }
         }
         [HttpGet("get-blog")]
@@ -110,11 +101,7 @@ namespace ARMS_API.Controllers
             }
             catch (Exception)
             {
-                return BadRequest(new ResponseViewModel
-                {
-                    Status = false,
-                    Message = "Đã xảy ra lỗi! Vui lòng thử lại sau!"
-                });
+                return BadRequest();
             }
         }
         [HttpGet("get-top5blogs")]
@@ -134,11 +121,7 @@ namespace ARMS_API.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(new ResponseViewModel
-                {
-                    Status = false,
-                    Message = "Đã xảy ra lỗi! Vui lòng thử lại sau!"
-                });
+                return BadRequest(ex.Message);
             }
         }
     }
