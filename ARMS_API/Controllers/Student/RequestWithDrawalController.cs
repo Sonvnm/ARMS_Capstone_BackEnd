@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Data.DTO;
 using Data.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Service.AccountSer;
@@ -10,6 +11,7 @@ namespace ARMS_API.Controllers.Student
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Student")]
     public class RequestWithDrawalController : ControllerBase
     {
         private IRequestService _request;
@@ -29,7 +31,11 @@ namespace ARMS_API.Controllers.Student
                 var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
                 if (string.IsNullOrEmpty(userId))
                 {
-                    return Unauthorized("Không tìm thấy ID người dùng!");
+                    return Unauthorized(new ResponseViewModel()
+                    {
+                        Status = false,
+                        Message = "Vui lòng đăng nhập lại để tiếp tục sử dụng!"
+                    });
                 }
                 List<Request> request = await _request.GetRequestWithDrawalsByID(Guid.Parse(userId));
                 List<RequestWithDrawalDTO> responeResult = _mapper.Map<List<RequestWithDrawalDTO>>(request);
@@ -38,8 +44,11 @@ namespace ARMS_API.Controllers.Student
             }
             catch (Exception)
             {
-
-                return BadRequest();
+                return BadRequest(new ResponseViewModel
+                {
+                    Status = false,
+                    Message = "Đã xảy ra lỗi! Vui lòng thử lại sau!"
+                });
             }
         }
         [HttpPost("add-request-change-major")]
@@ -47,10 +56,34 @@ namespace ARMS_API.Controllers.Student
         {
             try
             {
+
+                if (RequestWithDrawal_Student_DTO == null)
+                {
+                    return BadRequest(new ResponseViewModel()
+                    {
+                        Status = false,
+                        Message = "Không nhận được dữ liệu yêu cầu!"
+                    });
+                }
                 var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return Unauthorized(new ResponseViewModel()
+                    {
+                        Status = false,
+                        Message = "Vui lòng đăng nhập lại để tiếp tục sử dụng!"
+                    });
+                }
                 //get acccount by userId
                 var account = await _accountService.GetAccountByUserId(Guid.Parse(userId));
-
+                if (account == null)
+                {
+                    return BadRequest(new ResponseViewModel()
+                    {
+                        Status = false,
+                        Message = "Không tìm thấy tài khoản người dùng!"
+                    });
+                }
                 //mapper
                 Request Request = _mapper.Map<Request>(RequestWithDrawal_Student_DTO);
                 Request.Status = TypeofRequestChangeMajor.Inprocess;
@@ -69,10 +102,10 @@ namespace ARMS_API.Controllers.Student
             }
             catch (Exception ex)
             {
-                return BadRequest(new ResponseViewModel()
+                return BadRequest(new ResponseViewModel
                 {
                     Status = false,
-                    Message = ex.Message
+                    Message = "Đã xảy ra lỗi! Vui lòng thử lại sau!"
                 });
             }
         }
