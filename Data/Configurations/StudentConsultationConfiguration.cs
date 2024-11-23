@@ -32,6 +32,7 @@ namespace Data.Configurations
 
             #region config relation
             builder.HasOne(x => x.Campus).WithMany(x => x.StudentConsultations).HasForeignKey(x => x.CampusId).OnDelete(DeleteBehavior.NoAction);
+            builder.HasOne(x => x.Account).WithMany(x => x.StudentConsultations).HasForeignKey(x => x.CreateBy).OnDelete(DeleteBehavior.NoAction);
             builder.HasOne(x => x.Major).WithMany(x => x.StudentConsultations).HasForeignKey(x => x.MajorID).OnDelete(DeleteBehavior.NoAction);
             #endregion
         }

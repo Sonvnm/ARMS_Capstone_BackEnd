@@ -10,5 +10,7 @@ namespace Data.DTO
     {
         public string Bear { get; set; }
         public DateTime Expiration { get; set; }
+        public string? Role { get; set; }
+        public string? CampusId { get; set; }
     }
 }

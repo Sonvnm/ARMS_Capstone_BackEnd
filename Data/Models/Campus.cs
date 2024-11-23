@@ -11,6 +11,7 @@ namespace Data.Models
     {
         public string CampusId { get; set; }
         public string CampusName { get; set; }
+        public string CampusCode { get; set; }
         public string Address { get; set; }
         public string PhoneNumber { get; set; }
         public string? History { get; set; }
@@ -22,10 +23,9 @@ namespace Data.Models
         public virtual ICollection<Slider>? Sliders { get; set; }
         public virtual ICollection<BlogCategory>? BlogCategories { get; set; }
         public virtual ICollection<StudentConsultation>? StudentConsultations { get; set; }
-        public virtual ICollection<AdmissionTime>? AdmissionTimes { get; set; }
         public virtual ICollection<StudentProfile>? StudentProfiles { get; set; }
-        public virtual AdmissionInformation? AdmissionInformation { get; set; }
-        public virtual ICollection<RequestChangeMajor>? RequestChangeMajors { get; set; }
+        public virtual ICollection<AdmissionInformation>? AdmissionInformations { get; set; }
+        public virtual ICollection<Request>? RequestChangeMajors { get; set; }
 
     }
 }

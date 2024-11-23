@@ -17,7 +17,6 @@ namespace Data.Configurations
             builder.Property(x => x.MajorID).IsRequired();
             builder.Property(x => x.MajorName).IsRequired();
             builder.Property(x => x.CampusId).IsRequired();
-            builder.Property(x => x.Status).IsRequired();
             builder.Property(x => x.Tuition).IsRequired();
 
             #region config relation
