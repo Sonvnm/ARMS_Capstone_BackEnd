@@ -8,7 +8,7 @@ namespace ARMS_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CampusController : Controller
+    public class CampusController : ControllerBase
     {
         private ICampusService _campusService;
         private readonly IMapper _mapper;
