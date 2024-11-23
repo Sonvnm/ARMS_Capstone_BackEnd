@@ -34,7 +34,11 @@ namespace ARMS_API.Controllers
             }
             catch (Exception)
             {
-                return BadRequest();
+                return BadRequest(new ResponseViewModel
+                {
+                    Status = false,
+                    Message = "Đã xảy ra lỗi! Vui lòng thử lại sau!"
+                });
             }
         }
         [HttpGet("get-blogs")]
@@ -86,7 +90,11 @@ namespace ARMS_API.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(new ResponseViewModel
+                {
+                    Status = false,
+                    Message = "Đã xảy ra lỗi! Vui lòng thử lại sau!"
+                });
             }
         }
         [HttpGet("get-blog")]
@@ -101,7 +109,11 @@ namespace ARMS_API.Controllers
             }
             catch (Exception)
             {
-                return BadRequest();
+                return BadRequest(new ResponseViewModel
+                {
+                    Status = false,
+                    Message = "Đã xảy ra lỗi! Vui lòng thử lại sau!"
+                });
             }
         }
         [HttpGet("get-top5blogs")]
@@ -121,7 +133,11 @@ namespace ARMS_API.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(new ResponseViewModel
+                {
+                    Status = false,
+                    Message = "Đã xảy ra lỗi! Vui lòng thử lại sau!"
+                });
             }
         }
     }
