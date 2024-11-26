@@ -54,16 +54,13 @@ namespace Repository.MajorRepo
         {
             try
             {
-                DateTime date = DateTime.Now;
-                var AT = await _context.AdmissionTimes.FirstOrDefaultAsync(x=>x.StartRegister<= date && x.EndRegister>= date);
-                List<MajorAdmission> majors =
-                await _context.MajorAdmissions
-                .Include(x => x.Major)
-                .Include(x => x.AdmissionTime)
-                    .ThenInclude(x=>x.AdmissionInformation)
-                .Include(x => x.TypeAdmissions)
-                .OrderBy(x => x.Major.isVocationalSchool)
-                .Where(x => x.AdmissionTimeId == AT.AdmissionTimeId && x.AdmissionTime.AdmissionInformation.CampusId==campusId).ToListAsync();
+                var AI = await _context.AdmissionInformations.FirstOrDefaultAsync(x=>x.Status== TypeOfAdmissionInformation.Process && x.CampusId==campusId);
+                List<MajorAdmission> majors = await _context.MajorAdmissions
+                    .Include(x=>x.Major)
+                    .Include(x => x.AdmissionInformation)
+                    .Include(x => x.TypeAdmissions)
+                    .OrderBy(x => x.Major.isVocationalSchool)
+                    .Where(x => x.AdmissionInformationID == AI.AdmissionInformationID).ToListAsync();
                 return majors;
 
             }
@@ -74,18 +71,16 @@ namespace Repository.MajorRepo
             }
 
         }
-        public async Task<List<MajorAdmission>> GetMajorAdmissionsByATId(int ATId)
+        // cái này sẽ bỏ
+        public async Task<List<Major>> GetMajors_Manage(string campusId)
         {
             try
             {
-                List<MajorAdmission> majors =
-                await _context.MajorAdmissions
-                .Include(x => x.Major)
-                .Include(x => x.TypeAdmissions)
-                .OrderBy(x => x.Major.isVocationalSchool)
-                .Where(x => x.AdmissionTimeId == ATId).ToListAsync();
+                List<Major> majors = await _context.Majors
+                    .Where(x => x.CampusId.Equals(campusId))
+                    .OrderBy(x => x.isVocationalSchool)
+                    .ToListAsync();
                 return majors;
-
             }
             catch (Exception ex)
             {
@@ -94,21 +89,17 @@ namespace Repository.MajorRepo
             }
 
         }
-       
-        public async Task<MajorAdmission> GetMajorDetail(string MajorID)
+        public async Task<MajorAdmission> GetMajorDetail(string MajorID, int AdmissionInformationID)
         {
 
             try
             {
-                DateTime date = DateTime.Now;
-                var AT = await _context.AdmissionTimes.FirstOrDefaultAsync(x => x.StartRegister <= date && x.EndRegister >= date);
-                MajorAdmission major = 
-                await _context.MajorAdmissions
-               .Include(x => x.Major)
-               .Include(x => x.Major.Subjects.OrderBy(s => s.SemesterNumber))
-                .Include(x => x.TypeAdmissions)
-               .Include(x => x.AdmissionTime)
-               .SingleOrDefaultAsync(x => x.AdmissionTimeId == AT.AdmissionTimeId && x.MajorID == MajorID);
+                MajorAdmission major = await _context.MajorAdmissions
+                   .Include(x => x.Major)
+                   .Include(x=> x.Major.Subjects.OrderBy(s => s.SemesterNumber))
+                    .Include(x => x.TypeAdmissions)
+                   .Include(x => x.AdmissionInformation)
+                   .SingleOrDefaultAsync(x => x.AdmissionInformationID == AdmissionInformationID && x.MajorID == MajorID);
                 if (major == null)
                 {
                     throw new KeyNotFoundException($"Major with ID {MajorID} not found.");
@@ -127,14 +118,13 @@ namespace Repository.MajorRepo
 
             try
             {
-                //var AI = await _context.AdmissionInformations.FirstOrDefaultAsync(x => x.Status == TypeOfAdmissionInformation.Process && x.CampusId == campusId);
-                MajorAdmission major = null;
-                   // await _context.MajorAdmissions
-                   //.Include(x => x.Major)
-                   //.Include(x => x.Major.Subjects.OrderBy(s => s.SemesterNumber))
-                   // .Include(x => x.TypeAdmissions)
-                   //.Include(x => x.AdmissionInformation)
-                   //.SingleOrDefaultAsync(x => x.AdmissionInformationID == AI.AdmissionInformationID && x.MajorID == MajorID);
+                var AI = await _context.AdmissionInformations.FirstOrDefaultAsync(x => x.Status == TypeOfAdmissionInformation.Process && x.CampusId == campusId);
+                MajorAdmission major = await _context.MajorAdmissions
+                   .Include(x => x.Major)
+                   .Include(x => x.Major.Subjects.OrderBy(s => s.SemesterNumber))
+                    .Include(x => x.TypeAdmissions)
+                   .Include(x => x.AdmissionInformation)
+                   .SingleOrDefaultAsync(x => x.AdmissionInformationID == AI.AdmissionInformationID && x.MajorID == MajorID);
                 if (major == null)
                 {
                     throw new KeyNotFoundException($"Major with ID {MajorID} not found.");
@@ -153,18 +143,6 @@ namespace Repository.MajorRepo
             try
             {
                 await _context.Majors.AddAsync(major);
-                _context.SaveChanges();
-            }
-            catch (Exception)
-            {
-                throw new Exception("Tạo mới không thành công");
-            }
-        }
-        public async Task AddMajorAdmision(MajorAdmission major)
-        {
-            try
-            {
-                await _context.MajorAdmissions.AddAsync(major);
                 _context.SaveChanges();
             }
             catch (Exception)
