@@ -26,7 +26,14 @@ namespace ARMS_API.Controllers
             {
 
                 List<MajorAdmission> response = await _majorService.GetMajorsIsVocationalSchool(campus);
-
+                if (response == null)
+                {
+                    return BadRequest(new ResponseViewModel
+                    {
+                        Status = false,
+                        Message = "Không có ngành trung cấp nào đang tuyển!"
+                    });
+                }
                 List<MajorDTO> responeResult = _mapper.Map<List<MajorDTO>>(response);
                 return Ok(responeResult);
 
@@ -47,7 +54,14 @@ namespace ARMS_API.Controllers
             {
 
                 List<MajorAdmission> response = await _majorService.GetMajorsIsCollege(campus);
-
+                if (response == null)
+                {
+                    return BadRequest(new ResponseViewModel
+                    {
+                        Status = false,
+                        Message = "Không có ngành cao đẳng nào đang tuyển!"
+                    });
+                }
                 List<MajorDTO> responeResult = _mapper.Map<List<MajorDTO>>(response);
                 return Ok(responeResult);
 
@@ -68,7 +82,14 @@ namespace ARMS_API.Controllers
             {
 
                 List<MajorAdmission> response = await _majorService.GetMajorsIsCollegeForVocationalSchool(campus);
-
+                if (response == null)
+                {
+                    return BadRequest(new ResponseViewModel
+                    {
+                        Status = false,
+                        Message = "Không có ngành xét tuyển liên thông nào!"
+                    });
+                }
                 List<MajorDTO> responeResult = _mapper.Map<List<MajorDTO>>(response);
                 return Ok(responeResult);
 
@@ -83,12 +104,12 @@ namespace ARMS_API.Controllers
             }
         }
         [HttpGet("get-major-details")]
-        public async Task<IActionResult> GetMajorDetail(string MajorId, int AdmissionInformationID)
+        public async Task<IActionResult> GetMajorDetail(string MajorId)
         {
             try
             {
 
-                MajorAdmission response = await _majorService.GetMajorDetail(MajorId,AdmissionInformationID);
+                MajorAdmission response = await _majorService.GetMajorDetail(MajorId);
                 if (response == null)
                 {
                     return NotFound(new ResponseViewModel
