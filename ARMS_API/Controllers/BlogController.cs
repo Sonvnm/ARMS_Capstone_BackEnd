@@ -41,7 +41,6 @@ namespace ARMS_API.Controllers
                 });
             }
         }
-
         [HttpGet("get-blogs")]
         public async Task<IActionResult> GetBlogs(string? CampusId, string? Search, int CurrentPage, int? CategoryID)
         {
@@ -69,10 +68,10 @@ namespace ARMS_API.Controllers
                                 .ToList();
                 }
 
-                if (CategoryID != 0 && CategoryID != null)
+                if (CategoryID != 0 && CategoryID!=null)
                 {
                     response = response
-                                .Where(blog => blog.BlogCategoryId == CategoryID)
+                                .Where(blog =>blog.BlogCategoryId == CategoryID)
                                 .ToList();
                 };
 

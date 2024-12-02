@@ -11,7 +11,7 @@ namespace ARMS_API.Controllers.AdmissionCouncil
 {
     [Route("api/admission-council/[controller]")]
     [ApiController]
-   [Authorize(Roles = "AdmissionCouncil")]
+    [Authorize(Roles = "AdmissionCouncil")]
     public class MajorController : ControllerBase
     {
 
@@ -37,26 +37,6 @@ namespace ARMS_API.Controllers.AdmissionCouncil
                 {
                     Status = true,
                     Message = "Cập nhật thành công!"
-                });
-
-            }
-            catch (Exception)
-            {
-
-                return BadRequest();
-            }
-        }
-        [HttpPost("add-major")]
-        public async Task<IActionResult> AddMajor(Major_Admission_DTO MajorDTO)
-        {
-            try
-            {
-                MajorAdmission major = _mapper.Map<MajorAdmission>(MajorDTO);
-                await _majorService.AddMajorAdmision(major);
-                return Ok(new ResponseViewModel()
-                {
-                    Status = true,
-                    Message = "Thêm ngành tuyển sinh thành công!"
                 });
 
             }
@@ -124,23 +104,6 @@ namespace ARMS_API.Controllers.AdmissionCouncil
 
                 MajorAdmission response = await _majorService.GetMajorDetail(MajorId);
                 MajorDTO responeResult = _mapper.Map<MajorDTO>(response);
-                return Ok(responeResult);
-
-            }
-            catch (Exception)
-            {
-
-                return BadRequest();
-            }
-        }
-        [HttpGet("get-majors_admission/{ATId}")]
-        public async Task<IActionResult> GetMajorAdmissions(int ATId)
-        {
-            try
-            {
-
-                List<MajorAdmission> response = await _majorService.GetMajorAdmissionsByATId(ATId);
-               List<Major_AC_DTO> responeResult = _mapper.Map<List<Major_AC_DTO>>(response);
                 return Ok(responeResult);
 
             }
