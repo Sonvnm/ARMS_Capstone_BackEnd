@@ -15,7 +15,7 @@ namespace ARMS_API.ValidData
             _studentProfileService = studentProfileService;
         }
 
-        internal void InputBlog(Blog_SS_DTO blogDTO)
+        public void InputBlog(Blog_SS_DTO blogDTO)
         {
             try
             {

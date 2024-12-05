@@ -72,5 +72,6 @@ namespace ARMS_API.Controllers.SchoolService
                 return BadRequest();
             }
         }
+
     }
 }

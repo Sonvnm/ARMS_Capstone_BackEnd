@@ -41,6 +41,7 @@ namespace ARMS_API.Controllers
                 });
             }
         }
+
         [HttpGet("get-blogs")]
         public async Task<IActionResult> GetBlogs(string? CampusId, string? Search, int CurrentPage, int? CategoryID)
         {
