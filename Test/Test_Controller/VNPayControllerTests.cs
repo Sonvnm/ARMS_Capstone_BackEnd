@@ -10,7 +10,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Service.AdmissionInformationSer;
 using Service.MajorSer;
-using Service.VnPaySer;
+using Service.VNPaySer;
 using System;
 using System.Collections.Generic;
 using System.Linq;
