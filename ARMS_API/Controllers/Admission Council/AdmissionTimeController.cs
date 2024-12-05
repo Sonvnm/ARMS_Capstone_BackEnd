@@ -20,7 +20,7 @@ namespace ARMS_API.Controllers.Admission_Council
             _mapper = mapper;
             _validAdmissionTime = validAdmissionTime;
         }
-
+        [HttpGet("get-admission-time")]
         public async Task<IActionResult> GetAdmissionTimes(string CampusId, int year)
         {
             try
@@ -34,6 +34,7 @@ namespace ARMS_API.Controllers.Admission_Council
                 return BadRequest();
             }
         }
+        [HttpPost("add-admission-time")]
         public async Task<IActionResult> AddAdmissionTime([FromBody] AdmissionTime_Add_DTO admissionTimeDTO)
         {
             try
