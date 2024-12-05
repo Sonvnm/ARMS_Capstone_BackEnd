@@ -8,8 +8,6 @@ using System;
 using System.Threading.Tasks;
 using ARMS_API.Controllers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using ARMS_API.Controllers.AdmissionCouncil;
-using ARMS_API.Controllers.Admission_Council;
 
 namespace Test_Controller
 {
