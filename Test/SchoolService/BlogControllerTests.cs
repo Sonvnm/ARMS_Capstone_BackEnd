@@ -1,4 +1,5 @@
-﻿using ARMS_API.Controllers.SchoolService;
+﻿using ARMS_API.Controllers;
+using ARMS_API.Controllers.SchoolService;
 using ARMS_API.ValidData;
 using AutoMapper;
 using Data.DTO;
