@@ -11,7 +11,7 @@ namespace ARMS_API.Controllers.AdmissionCouncil
 {
     [Route("api/admission-council/[controller]")]
     [ApiController]
-    [Authorize(Roles = "AdmissionCouncil")]
+    //[Authorize(Roles = "AdmissionCouncil")]
     public class MajorController : ControllerBase
     {
 
@@ -37,6 +37,26 @@ namespace ARMS_API.Controllers.AdmissionCouncil
                 {
                     Status = true,
                     Message = "Cập nhật thành công!"
+                });
+
+            }
+            catch (Exception)
+            {
+
+                return BadRequest();
+            }
+        }
+        [HttpPost("add-major")]
+        public async Task<IActionResult> AddMajor(Major_Admission_DTO MajorDTO)
+        {
+            try
+            {
+                MajorAdmission major = _mapper.Map<MajorAdmission>(MajorDTO);
+                await _majorService.AddMajorAdmision(major);
+                return Ok(new ResponseViewModel()
+                {
+                    Status = true,
+                    Message = "Thêm ngành tuyển sinh thành công!"
                 });
 
             }
