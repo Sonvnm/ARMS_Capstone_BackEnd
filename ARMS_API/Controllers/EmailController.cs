@@ -21,7 +21,7 @@ namespace ARMS_API.Controllers
         {
             _emailService = emailService;
             _cache = cache;
-            _tokenHealper= tokenHealper;
+            _tokenHealper = tokenHealper;
         }
 
         //[HttpPost("send-OTP")]

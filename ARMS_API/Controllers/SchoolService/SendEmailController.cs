@@ -28,7 +28,7 @@ namespace ARMS_API.Controllers.SchoolService
             _requestNotificationService = requestNotificationService;
         }
         [HttpGet("get-request-notification")]
-        public async Task<IActionResult> GetRequestChangeMajor()
+        public async Task<IActionResult> GetRequest()
         {
             try
             {
