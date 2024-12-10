@@ -114,16 +114,21 @@ namespace Repository
             }
         }
         public async Task UpdateRequest(Data.Models.Request request)
-        {
-            try
-            {
-                _context.Entry<Data.Models.Request>(request).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
-                await _context.SaveChangesAsync();
-            }
-            catch (Exception)
-            {
-                throw new Exception("Chỉnh sửa không thành công");
-            }
-        }
+         {
+             try
+             {
+                 _context.Entry<Data.Models.Request>(request).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+                 if (request.MajorNew != null)
+                 {
+                     Account account = _context.Accounts.FirstOrDefault(x=>x.Id == request.AccountId);
+                     account.MajorId = request.MajorNew;
+                 }
+                 await _context.SaveChangesAsync();
+             }
+             catch (Exception)
+             {
+                 throw new Exception("Chỉnh sửa không thành công");
+             }
+         }
     }
 }
