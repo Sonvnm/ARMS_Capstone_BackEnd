@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -13,12 +14,15 @@ namespace Repository.StudentProfileRepo
     {
         private readonly ArmsDbContext _context;
         public StudentProfileRepository(ArmsDbContext context) { _context = context; }
-        public async Task AddStudentProfile(StudentProfile StudentProfile)
+        public async Task<Guid> AddStudentProfile(StudentProfile StudentProfile)
         {
             try
             {
+                Guid id = Guid.NewGuid();
+                StudentProfile.SpId = id;
                 await _context.StudentProfiles.AddRangeAsync(StudentProfile);
                 _context.SaveChanges();
+                return StudentProfile.SpId;
             }
             catch (Exception)
             {
@@ -50,8 +54,8 @@ namespace Repository.StudentProfileRepo
                     .Include(x=>x.Campus)
                     .Include(x => x.PriorityDetail)
                     .Include(x => x.PayFeeAdmissions)
-                    .Include(x => x.MajorNV1)
-                    .Include(x => x.MajorNV2)
+                    .Include(x => x.MajorNV)
+
                     .Include(x => x.AdmissionTime)
                     .FirstOrDefaultAsync(x => x.CitizenIentificationNumber.Equals(CID));
                 
@@ -98,9 +102,8 @@ namespace Repository.StudentProfileRepo
             try
             {
                 var majorAdmission = await _context.StudentProfiles
-                    .Where(x=>(x.Major1 == majorId 
-                    || x.Major2== majorId) && x.CampusId == CampusId 
-                    &&( x.TypeofStatusMajor1 == TypeofStatusForMajor.Pass || x.TypeofStatusMajor2 == TypeofStatusForMajor.Pass && (x.TypeofStatusProfile == TypeofStatus.SuccessProfileAdmission|| x.TypeofStatusProfile == TypeofStatus.ConfirmSuccessProfileAdmission || x.TypeofStatusProfile == TypeofStatus.Done)))
+                    .Where(x => (x.Major == majorId) && x.CampusId == CampusId
+                    && (x.TypeofStatusMajor == TypeofStatusForMajor.Pass && (x.TypeofStatusProfile == TypeofStatus.SuccessProfileAdmission || x.TypeofStatusProfile == TypeofStatus.ConfirmSuccessProfileAdmission || x.TypeofStatusProfile == TypeofStatus.Done)))
                     .ToListAsync();
 
                 return majorAdmission.Count();
@@ -120,8 +123,7 @@ namespace Repository.StudentProfileRepo
                     .Include(x => x.AcademicTranscripts)
                     .Include(x => x.PriorityDetail)
                     .Include(x => x.PayFeeAdmissions)
-                    .Include(x => x.MajorNV1)
-                    .Include(x => x.MajorNV2)
+                    .Include(x => x.MajorNV)
                     .Where(x => x.CampusId == CampusId)
                     .OrderByDescending(x => x.PriorityDetailPriorityID)
                     .OrderBy(x => x.TimeRegister)
@@ -144,8 +146,7 @@ namespace Repository.StudentProfileRepo
                     .Include(x => x.AcademicTranscripts)
                     .Include(x => x.PriorityDetail)
                     .Include(x => x.PayFeeAdmissions)
-                    .Include(x => x.MajorNV1)
-                    .Include(x => x.MajorNV2)
+                    .Include(x => x.MajorNV)
                     .Where(x => x.AdmissionTimeId == ATId)
                     .ToListAsync();
 
@@ -153,7 +154,7 @@ namespace Repository.StudentProfileRepo
                 var sortedAdmissions = registerAdmissions
                     .Select(student =>
                     {
-                        // Lấy điểm ưu tiên
+                        // Lấy điểm ưu tiên nếu có
                         var priorityScore = student.PriorityDetail?.TypeOfPriority switch
                         {
                             TypeOfPriority.UT1 => 2,
@@ -161,28 +162,19 @@ namespace Repository.StudentProfileRepo
                             _ => 0 // Mặc định nếu không phải UT1 hoặc UT2
                         };
 
-                        // Tính tổng điểm cho Nguyện vọng 1
-                        var scoreNV1 = student.AcademicTranscripts
-                            .Where(transcript => transcript.isMajor1) // Lọc cho Nguyện vọng 1
-                            .Sum(transcript => transcript.SubjectPoint) // Tổng điểm các môn
-                            + priorityScore; // Cộng điểm ưu tiên
-
-                        // Tính tổng điểm cho Nguyện vọng 2
-                        var scoreNV2 = student.AcademicTranscripts
-                            .Where(transcript => !transcript.isMajor1) // Lọc cho Nguyện vọng 2
-                            .Sum(transcript => transcript.SubjectPoint) // Tổng điểm các môn
-                            + priorityScore; // Cộng điểm ưu tiên
+                        // Chỉ tính tổng điểm nếu AcademicTranscripts không null
+                        var scoreNV = student.AcademicTranscripts?.Any() == true // Kiểm tra nếu có điểm
+                            ? student.AcademicTranscripts.Sum(transcript => transcript.SubjectPoint) + priorityScore
+                            : 0; // Nếu không có điểm, tổng là 0
 
                         return new
                         {
                             Student = student,
-                            ScoreNV1 = scoreNV1,
-                            ScoreNV2 = scoreNV2
+                            ScoreNV = scoreNV,
                         };
                     })
-                    .OrderByDescending(x => x.ScoreNV1) // Sắp xếp giảm dần theo điểm Nguyện vọng 1
-                    .ThenByDescending(x => x.ScoreNV2) // Sắp xếp phụ giảm dần theo điểm Nguyện vọng 2
-                    .ThenBy(x => x.Student.PriorityDetail.PriorityID) // Sắp xếp phụ theo độ ưu tiên
+                    .OrderByDescending(x => x.ScoreNV) // Sắp xếp giảm dần theo điểm Nguyện vọng 1
+                    .ThenBy(x => x.Student.PriorityDetail?.PriorityID ?? int.MaxValue) // Sắp xếp phụ theo độ ưu tiên (ưu tiên null đặt cuối)
                     .ThenBy(x => x.Student.TimeRegister) // Sắp xếp phụ theo thời gian đăng ký
                     .Select(x => x.Student) // Lấy danh sách StudentProfile
                     .ToList();
@@ -196,7 +188,6 @@ namespace Repository.StudentProfileRepo
         }
 
 
-
         public async Task<StudentProfile?> GetStudentProfileBySpIdAsync(Guid id)
         {
             var studentProfile = await _context.StudentProfiles
@@ -204,8 +195,7 @@ namespace Repository.StudentProfileRepo
                     .Include(x => x.AcademicTranscripts)
                     .Include(x => x.PriorityDetail)
                     .Include(x => x.PayFeeAdmissions)
-                    .Include(x => x.MajorNV1)
-                    .Include(x => x.MajorNV2)
+                    .Include(x => x.MajorNV)
                     .Include(x => x.AdmissionTime)
                 .FirstOrDefaultAsync(x => x.SpId == id);
 

@@ -9,7 +9,7 @@ namespace Service.StudentProfileServ
 {
     public interface IStudentProfileService
     {
-        Task AddStudentProfile(StudentProfile StudentProfile);
+        Task<Guid> AddStudentProfile(StudentProfile StudentProfile);
         Task<bool> isExistCCCDStudent(string CID);
         Task<bool> isExistEmailStudent(string email);
         Task<bool> isExistPhoneNumberStudent(string phonenumber);

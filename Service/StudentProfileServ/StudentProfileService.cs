@@ -18,14 +18,12 @@ namespace Service.StudentProfileServ
         {
             _studentProfileRepository = new StudentProfileRepository(context);
         }
-        public async Task AddStudentProfile(StudentProfile StudentProfile)
+        public async Task<Guid> AddStudentProfile(StudentProfile StudentProfile)
         {
             try
             {
-
-            Guid id = Guid.NewGuid();
-            StudentProfile.SpId = id;
-            await _studentProfileRepository.AddStudentProfile(StudentProfile);
+            Guid id = await _studentProfileRepository.AddStudentProfile(StudentProfile);
+                return id;
             }
             catch (Exception)
             {

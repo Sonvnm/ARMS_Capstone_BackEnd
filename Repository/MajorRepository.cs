@@ -1,6 +1,7 @@
 ﻿using Data.ArmsContext;
 using Data.Models;
 using Microsoft.EntityFrameworkCore;
+using Org.BouncyCastle.Asn1.X509;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -94,7 +95,127 @@ namespace Repository.MajorRepo
             }
 
         }
-       
+        public async Task<List<object>> GetMajorAdmissionsAndRegisterByATId(int ATId)
+        {
+            try
+            {
+                List<MajorAdmission> majors =
+                await _context.MajorAdmissions
+                .Include(x => x.Major)
+                .Include(x => x.TypeAdmissions)
+                .OrderBy(x => x.Major.isVocationalSchool)
+                .Where(x => x.AdmissionTimeId == ATId).ToListAsync();
+                var majorWithRegisterCount = new List<object>();
+                foreach (var major in majors)
+                {
+                    var registerCount = await _context.StudentProfiles
+                        .Where(r => r.Major == major.MajorID && r.AdmissionTimeId == ATId)
+                        .CountAsync();
+                    var registerCountPass = await _context.StudentProfiles
+                        .Where(r => r.Major == major.MajorID
+                                    && r.AdmissionTimeId == ATId
+                                    && r.TypeofStatusProfile == TypeofStatus.SuccessProfileAdmission
+                                    && r.Major == major.MajorID
+                                    && r.TypeofStatusMajor == TypeofStatusForMajor.Pass)
+                        .CountAsync();
+
+                    majorWithRegisterCount.Add(new
+                    {
+                        MajorId = major.MajorID,
+                        MajorName = major.Major?.MajorName,
+                        RegisteredCount = registerCount,
+                        Target = major.Target,
+                        RegisterCountPass = registerCountPass
+                    });
+                }
+
+                return majorWithRegisterCount;
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                throw;
+            }
+
+        }
+        public async Task<List<object>> GetMajorAdmissionsAndRegisterProcess(string campusId)
+        {
+            try
+            {
+                DateTime date = DateTime.Now;
+                AdmissionInformation AdmissionInformation = await _context.AdmissionInformations.Include(x=>x.AdmissionTimes)
+                    .FirstOrDefaultAsync(x => x.StartAdmission <= date && x.EndAdmission >= date && x.CampusId == campusId);
+
+
+                var majorWithRegisterCount = new List<object>();
+
+                // Loop through each AdmissionTimeId.
+                foreach (var AT in AdmissionInformation.AdmissionTimes)
+                {
+                    // Get major admissions related to the specific AdmissionTimeId.
+                    var majors = await _context.MajorAdmissions
+                        .Include(x => x.Major)
+                        .Include(x => x.TypeAdmissions)
+                        .OrderBy(x => x.Major.isVocationalSchool)
+                        .Where(x => x.AdmissionTimeId == AT.AdmissionTimeId)
+                        .ToListAsync();
+
+                    foreach (var major in majors)
+                    {
+                        // Count the total number of registrations for the current major.
+                        var registerCount = await _context.StudentProfiles
+                            .Where(r => r.Major == major.MajorID && r.AdmissionTimeId == AT.AdmissionInformationID)
+                            .CountAsync();
+
+                        // Count the number of successful admissions (Passed).
+                        var registerCountPass = await _context.StudentProfiles
+                            .Where(r => r.Major == major.MajorID
+                                        && r.AdmissionTimeId == AT.AdmissionInformationID
+                                        && r.TypeofStatusProfile == TypeofStatus.SuccessProfileAdmission
+                                        && r.TypeofStatusMajor == TypeofStatusForMajor.Pass)
+                            .CountAsync();
+
+                        majorWithRegisterCount.Add(new
+                        {
+                            MajorId = major.MajorID,
+                            MajorName = major.Major?.MajorName,
+                            RegisteredCount = registerCount,
+                            Target = major.Target,
+                            RegisterCountPass = registerCountPass,
+                            AdmissionTimeId = AT.AdmissionInformationID // Include the AdmissionTimeId for clarity
+                        });
+                    }
+                }
+
+                return majorWithRegisterCount;
+            }
+            catch (Exception ex)
+            {
+                // Log the error and rethrow the exception
+                Console.WriteLine(ex);
+                throw new Exception("An error occurred while retrieving the major admissions and registration process.", ex);
+            }
+        }
+
+        // cái này sẽ bỏ
+        public async Task<List<Major>> GetMajors_Manage(string campusId)
+        {
+            try
+            {
+                List<Major> majors = await _context.Majors
+                    .Where(x => x.CampusId.Equals(campusId))
+                    .OrderBy(x => x.isVocationalSchool)
+                    .ToListAsync();
+                return majors;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                throw;
+            }
+
+        }
         public async Task<MajorAdmission> GetMajorDetail(string MajorID)
         {
 
