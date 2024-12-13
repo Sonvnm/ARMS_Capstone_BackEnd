@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ARMS_API.Controllers.AdmissionCouncil;
+﻿using ARMS_API.Controllers.AdmissionCouncil;
 using ARMS_API.ValidData;
 using AutoMapper;
 using Data.DTO;
@@ -13,6 +7,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Service.MajorSer;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Test.AdmissionCouncil
 {
@@ -166,22 +165,20 @@ namespace Test.AdmissionCouncil
         {
             // Arrange
             var majorId = "test-major-id";
-            var majorAdmission = new MajorAdmission
-            {
+            var majorAdmission = new MajorAdmission {
                 MajorID = "Test",
                 Status = true,
                 SubjectGroupsJson = "[1,2]",
-                TotalScoreAcademic = 24,
-                TotalScore = 24,
-                AdmissionTimeId = 1
+                TotalScoreAcademic=24,
+                TotalScore=24,
+                AdmissionTimeId =1
             };
-            var majorDTO = new MajorDTO
-            {
+            var majorDTO = new MajorDTO {
                 TotalScore = 24,
-                TotalScoreAcademic = 24,
-                Status = true,
+                TotalScoreAcademic=24,
+                Status=true,
                 isVocationalSchool = true,
-                MajorID = "Test"
+                MajorID = "Test" 
             };
 
             _mockMajorService.Setup(service => service.GetMajorDetail(majorId))

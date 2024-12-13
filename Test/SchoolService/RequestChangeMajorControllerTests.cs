@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ARMS_API.Controllers.SchoolService;
+﻿using ARMS_API.Controllers.SchoolService;
 using ARMS_API.ValidData;
 using AutoMapper;
 using Data.DTO;
@@ -11,6 +6,12 @@ using Data.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Service.RequestChangeMajorSer;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Test.SchoolService
 {

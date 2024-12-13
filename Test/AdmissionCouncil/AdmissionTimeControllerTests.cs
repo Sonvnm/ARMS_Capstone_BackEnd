@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ARMS_API.Controllers.Admission_Council;
-using ARMS_API.Controllers.AdmissionCouncil;
+﻿using ARMS_API.Controllers.AdmissionCouncil;
 using ARMS_API.ValidData;
 using AutoMapper;
 using Data.DTO;
@@ -14,6 +8,11 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Service.AdmissionInformationSer;
 using Service.AdmissionTimeSer;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Test.AdmissionCouncil
 {

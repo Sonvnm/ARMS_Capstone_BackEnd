@@ -1,17 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ARMS_API.Controllers.SchoolService;
+﻿using ARMS_API.Controllers.SchoolService;
 using ARMS_API.ValidData;
 using AutoMapper;
 using Data.DTO;
+using Data.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Service.BlogSer;
 using Service.StudentProfileServ;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Test.SchoolService
 {
@@ -149,8 +150,8 @@ namespace Test.SchoolService
 
             var response = okResult.Value as ResponseViewModel;
             Assert.IsNotNull(response);
-            Assert.IsTrue(response.Status);
-            Assert.AreEqual("Tạo mới mới thành công!", response.Message);
+            Assert.IsTrue(response.Status); 
+            Assert.AreEqual("Tạo mới mới thành công!", response.Message);  
         }
         [TestMethod]
         public async Task AddBlog_ShouldReturnBadRequest_WhenInvalidDataIsProvided()
@@ -159,7 +160,7 @@ namespace Test.SchoolService
             var blogDTO = new Blog_SS_DTO
             {
                 BlogId = 1,
-                Title = "",
+                Title = "", 
                 Content = "Valid Blog Content",
                 Description = "Valid Blog Description",
                 BlogCategoryId = 1
@@ -171,7 +172,7 @@ namespace Test.SchoolService
             // Assert
             var badRequestResult = result as BadRequestObjectResult;
             Assert.IsNotNull(badRequestResult);
-            Assert.AreEqual(400, badRequestResult.StatusCode);
+            Assert.AreEqual(400, badRequestResult.StatusCode); 
 
             var response = badRequestResult.Value as ResponseViewModel;
             Assert.IsNotNull(response);
@@ -203,7 +204,7 @@ namespace Test.SchoolService
             var response = okResult.Value as ResponseViewModel;
             Assert.IsNotNull(response);
             Assert.IsTrue(response.Status);
-            Assert.AreEqual("Cập nhật thành công!", response.Message);
+            Assert.AreEqual("Cập nhật thành công!", response.Message);  
         }
 
         [TestMethod]
@@ -225,7 +226,7 @@ namespace Test.SchoolService
             // Assert
             var badRequestResult = result as BadRequestResult;
             Assert.IsNotNull(badRequestResult);
-            Assert.AreEqual(400, badRequestResult.StatusCode);
+            Assert.AreEqual(400, badRequestResult.StatusCode); 
         }
     }
 }
