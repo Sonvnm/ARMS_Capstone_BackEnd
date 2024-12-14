@@ -13,11 +13,12 @@ namespace ARMS_API.Controllers.Admission_Council
     {
         private IAdmissionTimeService _admissionTimeService;
         private readonly IMapper _mapper;
-        public AdmissionTimeController(IAdmissionTimeService admissionTimeService, IMapper mapper)
+        private ValidAdmissionTime _validAdmissionTime;
+        public AdmissionTimeController(IAdmissionTimeService admissionTimeService, IMapper mapper, ValidAdmissionTime validAdmissionTime)
         {
             _admissionTimeService = admissionTimeService;
             _mapper = mapper;
-            
+            _validAdmissionTime = validAdmissionTime;
         }
 
         public async Task<IActionResult> GetAdmissionTimes(string CampusId, int year)
@@ -33,8 +34,32 @@ namespace ARMS_API.Controllers.Admission_Council
                 return BadRequest();
             }
         }
-        [HttpPost("add-admission-time")]
-        public async Task<IActionResult> AddAdmissionTime() {  return Ok(); }
+        public async Task<IActionResult> AddAdmissionTime([FromBody] AdmissionTime_Add_DTO admissionTimeDTO)
+        {
+            try
+            {
+                //check data
+                await _validAdmissionTime.ValidDataAdmissionTime
+                    (admissionTimeDTO);
+                //mapper
+                AdmissionTime AdmissionTime = _mapper.Map<AdmissionTime>(admissionTimeDTO);
+                //add new
+                await _admissionTimeService.AddAdmissionTime(AdmissionTime);
+                return Ok(new ResponseViewModel()
+                {
+                    Status = true,
+                    Message = "Tạo mới thành công!"
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseViewModel()
+                {
+                    Status = false,
+                    Message = ex.Message
+                });
+            }
+        }
 
         [HttpPut("update-admission-time")]
         public async Task<IActionResult> UpdateAdmissionTime()
