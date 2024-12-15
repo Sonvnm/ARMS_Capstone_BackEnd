@@ -13,7 +13,7 @@ namespace ARMS_API.Controllers.AdmissionOfficer
     [Route("api/admin-officer/[controller]")]
 
     [ApiController]
-    [Authorize(Roles = "AdminOfficer")]
+   //[Authorize(Roles = "AdminOfficer")]
     public class StudentConsultationController : ControllerBase
     {
         private IStudentConsultationService _studentConsultationService;

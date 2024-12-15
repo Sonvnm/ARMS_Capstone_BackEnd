@@ -53,7 +53,7 @@ namespace ARMS_API.ValidData
             // campus
             if (string.IsNullOrEmpty(registerAdmissionProfileDTO.CampusId)) throw new Exception("Vui lòng chọn campus!");
             // major
-            if (string.IsNullOrEmpty(registerAdmissionProfileDTO.Major1) || string.IsNullOrEmpty(registerAdmissionProfileDTO.Major2)) throw new Exception("Vui lòng chọn ngành học!");
+            if (string.IsNullOrEmpty(registerAdmissionProfileDTO.Major)) throw new Exception("Vui lòng chọn ngành học!");
             // YearOfGraduation
             if (registerAdmissionProfileDTO.YearOfGraduation == null) throw new Exception("Vui lòng nhập năm tốt nghiệp!");
             // SchoolName

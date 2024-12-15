@@ -160,7 +160,6 @@ builder.Services.AddScoped<EmailQueue>();
 builder.Services.AddSingleton<FirebaseService>();
 //Services
 builder.Services.AddScoped<IEmailService, EmailService>();
-builder.Services.AddScoped<IEmailNotifyService, EmailNotifyService>();
 builder.Services.AddScoped<IVnPayService, VnPayService>();
 
 builder.Services.AddHttpClient(); // Thêm HttpClient vào DI container

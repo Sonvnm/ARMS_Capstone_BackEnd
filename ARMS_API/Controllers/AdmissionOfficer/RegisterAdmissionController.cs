@@ -119,10 +119,9 @@ namespace ARMS_API.Controllers.AdmissionOfficer
             try
             {
                 StudentProfile responeResult = _mapper.Map<StudentProfile>(AdmissionProfile_DTO);
-                if (responeResult.TypeofStatusMajor1 == TypeofStatusForMajor.Fail && responeResult.TypeofStatusMajor2 == TypeofStatusForMajor.Fail)
+                if (AdmissionProfile_DTO.TypeofStatusMajor1 == TypeofStatusForMajor.Fail )
                 {
-                    responeResult.TypeofStatusMajor1 = TypeofStatusForMajor.Fail;
-                    responeResult.TypeofStatusMajor2 = TypeofStatusForMajor.Fail;
+                    responeResult.TypeofStatusMajor = TypeofStatusForMajor.Fail;
                     responeResult.TypeofStatusProfile = TypeofStatus.Done;
                 }
                 await _studentProfileService.UpdateStudentRegister(responeResult);
@@ -155,10 +154,9 @@ namespace ARMS_API.Controllers.AdmissionOfficer
                     });
                 }
                 stf.TypeofStatusProfile = AdmissionProfile_UpdateStatus_DTO.TypeofStatusProfile;
-                if (AdmissionProfile_UpdateStatus_DTO.TypeofStatusMajor1 == TypeofStatusForMajor.Fail && AdmissionProfile_UpdateStatus_DTO.TypeofStatusMajor2 == TypeofStatusForMajor.Fail)
+                if (AdmissionProfile_UpdateStatus_DTO.TypeofStatusMajor1 == TypeofStatusForMajor.Fail)
                 {
-                    stf.TypeofStatusMajor1 = TypeofStatusForMajor.Fail;
-                    stf.TypeofStatusMajor2 = TypeofStatusForMajor.Fail;
+                    stf.TypeofStatusMajor = TypeofStatusForMajor.Fail;
                     stf.TypeofStatusProfile = TypeofStatus.Done;
                     _ = Task.Run(async () =>
                     {

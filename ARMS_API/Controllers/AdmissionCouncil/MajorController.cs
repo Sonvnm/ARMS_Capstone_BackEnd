@@ -11,7 +11,7 @@ namespace ARMS_API.Controllers.AdmissionCouncil
 {
     [Route("api/admission-council/[controller]")]
     [ApiController]
-   [Authorize(Roles = "AdmissionCouncil")]
+   //[Authorize(Roles = "AdmissionCouncil")]
     public class MajorController : ControllerBase
     {
 
@@ -142,6 +142,37 @@ namespace ARMS_API.Controllers.AdmissionCouncil
                 List<MajorAdmission> response = await _majorService.GetMajorAdmissionsByATId(ATId);
                List<Major_AC_DTO> responeResult = _mapper.Map<List<Major_AC_DTO>>(response);
                 return Ok(responeResult);
+
+            }
+            catch (Exception)
+            {
+
+                return BadRequest();
+            }
+        }
+        [HttpGet("get-majors_admission_and_register/{ATId}")]
+        public async Task<IActionResult> GetMajorAdmissionsAndRegister(int ATId)
+        {
+            try
+            {
+
+                List<object> response = await _majorService.GetMajorAdmissionsAndRegisterByATId(ATId);
+                return Ok(response);
+
+            }
+            catch (Exception)
+            {
+
+                return BadRequest();
+            }
+        }
+        [HttpGet("get-majors_admission_and_register")]
+        public async Task<IActionResult> GetMajorAdmissionsAndRegisterProcess(string CampusId)
+        {
+            try
+            {
+                List<object> response = await _majorService.GetMajorAdmissionsAndRegisterProcess(CampusId);
+                return Ok(response);
 
             }
             catch (Exception)
