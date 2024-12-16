@@ -2,6 +2,8 @@
 
 namespace ARMS_API.Controllers.Admission_Council
 {
+    [Route("api/admission-council/[controller]")]
+    [ApiController]
     public class AdmissionInformationController : ControllerBase
     {
         [HttpGet("get-admission-information")]
