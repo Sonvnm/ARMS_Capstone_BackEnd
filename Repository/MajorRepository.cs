@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Repository.MajorRepo
 {
-    public class MajorRepository 
+    public class MajorRepository
     {
         private readonly ArmsDbContext _context;
         public MajorRepository(ArmsDbContext context) { _context = context; }
@@ -21,7 +21,7 @@ namespace Repository.MajorRepo
             try
             {
                 List<Major> majors = await _context.Majors
-                    .Where(x => x.CampusId.Equals(campusId) )
+                    .Where(x => x.CampusId.Equals(campusId))
                     .OrderBy(x => x.isVocationalSchool)
                     .ToListAsync();
                 return majors;
@@ -56,15 +56,15 @@ namespace Repository.MajorRepo
             try
             {
                 DateTime date = DateTime.Now;
-                var AT = await _context.AdmissionTimes.FirstOrDefaultAsync(x=>x.StartRegister<= date && x.EndRegister>= date);
+                var AT = await _context.AdmissionTimes.FirstOrDefaultAsync(x => x.StartRegister <= date && x.EndRegister >= date);
                 List<MajorAdmission> majors =
                 await _context.MajorAdmissions
                 .Include(x => x.Major)
                 .Include(x => x.AdmissionTime)
-                    .ThenInclude(x=>x.AdmissionInformation)
+                    .ThenInclude(x => x.AdmissionInformation)
                 .Include(x => x.TypeAdmissions)
                 .OrderBy(x => x.Major.isVocationalSchool)
-                .Where(x => x.AdmissionTimeId == AT.AdmissionTimeId && x.AdmissionTime.AdmissionInformation.CampusId==campusId).ToListAsync();
+                .Where(x => x.AdmissionTimeId == AT.AdmissionTimeId && x.AdmissionTime.AdmissionInformation.CampusId == campusId).ToListAsync();
                 return majors;
 
             }
@@ -144,7 +144,7 @@ namespace Repository.MajorRepo
             try
             {
                 DateTime date = DateTime.Now;
-                AdmissionInformation AdmissionInformation = await _context.AdmissionInformations.Include(x=>x.AdmissionTimes)
+                AdmissionInformation AdmissionInformation = await _context.AdmissionInformations.Include(x => x.AdmissionTimes)
                     .FirstOrDefaultAsync(x => x.StartAdmission <= date && x.EndAdmission >= date && x.CampusId == campusId);
 
 
@@ -223,7 +223,7 @@ namespace Repository.MajorRepo
             {
                 DateTime date = DateTime.Now;
                 var AT = await _context.AdmissionTimes.FirstOrDefaultAsync(x => x.StartRegister <= date && x.EndRegister >= date);
-                MajorAdmission major = 
+                MajorAdmission major =
                 await _context.MajorAdmissions
                .Include(x => x.Major)
                .Include(x => x.Major.Subjects.OrderBy(s => s.SemesterNumber))
@@ -250,12 +250,12 @@ namespace Repository.MajorRepo
             {
                 //var AI = await _context.AdmissionInformations.FirstOrDefaultAsync(x => x.Status == TypeOfAdmissionInformation.Process && x.CampusId == campusId);
                 MajorAdmission major = null;
-                   // await _context.MajorAdmissions
-                   //.Include(x => x.Major)
-                   //.Include(x => x.Major.Subjects.OrderBy(s => s.SemesterNumber))
-                   // .Include(x => x.TypeAdmissions)
-                   //.Include(x => x.AdmissionInformation)
-                   //.SingleOrDefaultAsync(x => x.AdmissionInformationID == AI.AdmissionInformationID && x.MajorID == MajorID);
+                // await _context.MajorAdmissions
+                //.Include(x => x.Major)
+                //.Include(x => x.Major.Subjects.OrderBy(s => s.SemesterNumber))
+                // .Include(x => x.TypeAdmissions)
+                //.Include(x => x.AdmissionInformation)
+                //.SingleOrDefaultAsync(x => x.AdmissionInformationID == AI.AdmissionInformationID && x.MajorID == MajorID);
                 if (major == null)
                 {
                     throw new KeyNotFoundException($"Major with ID {MajorID} not found.");

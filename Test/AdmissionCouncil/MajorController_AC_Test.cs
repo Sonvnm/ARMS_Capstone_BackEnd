@@ -165,20 +165,22 @@ namespace Test.AdmissionCouncil
         {
             // Arrange
             var majorId = "test-major-id";
-            var majorAdmission = new MajorAdmission {
+            var majorAdmission = new MajorAdmission
+            {
                 MajorID = "Test",
                 Status = true,
                 SubjectGroupsJson = "[1,2]",
-                TotalScoreAcademic=24,
-                TotalScore=24,
-                AdmissionTimeId =1
-            };
-            var majorDTO = new MajorDTO {
+                TotalScoreAcademic = 24,
                 TotalScore = 24,
-                TotalScoreAcademic=24,
-                Status=true,
+                AdmissionTimeId = 1
+            };
+            var majorDTO = new MajorDTO
+            {
+                TotalScore = 24,
+                TotalScoreAcademic = 24,
+                Status = true,
                 isVocationalSchool = true,
-                MajorID = "Test" 
+                MajorID = "Test"
             };
 
             _mockMajorService.Setup(service => service.GetMajorDetail(majorId))
