@@ -30,9 +30,9 @@ namespace ARMS_API.Controllers.AdmissionCouncil
         private IAdmissionInformationService _admissionInformationService;
         public RegisterAdmissionController(
             IStudentProfileService studentProfileService,
-            IMapper mapper, 
+            IMapper mapper,
             ValidRegisterAdmission validInput,
-            UserInput userInput, 
+            UserInput userInput,
             IEmailService emailService,
             IMajorService majorService,
             IAdmissionInformationService admissionInformationService
@@ -107,7 +107,7 @@ namespace ARMS_API.Controllers.AdmissionCouncil
             }
         }
         [HttpGet("list-register-admission/{ATId}")]
-        public async Task<IActionResult> ListRegisterAdmission(int ATId , string? Search, int CurrentPage, TypeofStatus? TypeofStatus)
+        public async Task<IActionResult> ListRegisterAdmission(int ATId, string? Search, int CurrentPage, TypeofStatus? TypeofStatus)
         {
             try
             {
