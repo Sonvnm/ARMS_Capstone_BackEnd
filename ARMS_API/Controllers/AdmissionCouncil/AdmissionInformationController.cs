@@ -2,19 +2,14 @@
 using AutoMapper;
 using Data.DTO;
 using Data.Models;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Service.AdmissionInformationSer;
-using Service.AdmissionTimeSer;
 using Service.CampusSer;
-using System.Collections.Generic;
 
-namespace ARMS_API.Controllers.AdmissionCouncil
+namespace ARMS_API.Controllers.Admission_Council
 {
     [Route("api/admission-council/[controller]")]
     [ApiController]
-    //[Authorize(Roles = "AdmissionCouncil")]
     public class AdmissionInformationController : ControllerBase
     {
         private IAdmissionInformationService _admissionInformationService;
@@ -28,12 +23,11 @@ namespace ARMS_API.Controllers.AdmissionCouncil
             _campusService = campusService;
             _validAdmissionInformation = validAdmissionInformation;
         }
-        [HttpGet("get-admission-information")]
         public async Task<IActionResult> GetAdmissionInformation(string CampusId)
         {
             try
             {
-                List <AdmissionInformation> response = await _admissionInformationService.GetAdmissionInformation(CampusId);
+                List<AdmissionInformation> response = await _admissionInformationService.GetAdmissionInformation(CampusId);
                 List<AdmissionInformation_AC_DTO> responeResult = _mapper.Map<List<AdmissionInformation_AC_DTO>>(response);
                 return Ok(responeResult);
             }
@@ -62,7 +56,7 @@ namespace ARMS_API.Controllers.AdmissionCouncil
             try
             {
                 //check data
-               await _validAdmissionInformation.ValidDataAdmissionInforAdd(AdmissionInformationDTO, AdmissionInformationDTO.CampusId);
+                await _validAdmissionInformation.ValidDataAdmissionInforAdd(AdmissionInformationDTO, AdmissionInformationDTO.CampusId);
                 //mapper
                 AdmissionInformation AdmissionInformation = _mapper.Map<AdmissionInformation>(AdmissionInformationDTO);
                 //add new
@@ -108,8 +102,9 @@ namespace ARMS_API.Controllers.AdmissionCouncil
                 {
                     Status = false,
                     Message = ex.Message
-                })) ;
+                }));
             }
         }
+
     }
 }
