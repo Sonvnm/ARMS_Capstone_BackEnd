@@ -31,9 +31,9 @@ namespace Service.MajorSer
         }
         public async Task<List<MajorAdmission>> GetMajorsIsVocationalSchool(string campusId)
         {
-            
+
             var result = await _majorRepository.GetMajorAdmissions(campusId);
-            var activeMajors = result.Where(major => major.Major.isVocationalSchool == true && major.Status==true).ToList();
+            var activeMajors = result.Where(major => major.Major.isVocationalSchool == true && major.Status == true).ToList();
             return activeMajors;
         }
         public async Task<List<MajorAdmission>> GetMajorsIsCollege(string campusId)
@@ -63,7 +63,7 @@ namespace Service.MajorSer
             await _majorRepository.AddNewMajor(major);
         }
 
-        public async Task UpdateMajor(Major major)=> await _majorRepository.UpdateMajor(major);
+        public async Task UpdateMajor(Major major) => await _majorRepository.UpdateMajor(major);
 
         public async Task<List<MajorAdmission>> GetMajorsManage(string campusId)
         {
@@ -75,7 +75,7 @@ namespace Service.MajorSer
         public async Task UpdateMajorAdmission(MajorAdmission Major)
         {
             var admissionMajors = await _majorRepository.GetMajorAdmissionsByATId(Major.AdmissionTimeId);
-            var majorValid = admissionMajors.FirstOrDefault(x=>x.MajorID == Major.MajorID);
+            var majorValid = admissionMajors.FirstOrDefault(x => x.MajorID == Major.MajorID);
             if (majorValid == null) throw new Exception("Không tồn tại ngành học");
             majorValid.Status = Major.Status;
             majorValid.Target = Major.Target;
@@ -90,7 +90,7 @@ namespace Service.MajorSer
             => _majorRepository.GetMajorDetail(MajorID);
 
         public Task<MajorAdmission> GetMajorDetail(string MajorID, string campusId)
-        => _majorRepository.GetMajorDetail(MajorID,campusId);
+        => _majorRepository.GetMajorDetail(MajorID, campusId);
 
         public Task<List<MajorAdmission>> GetMajorAdmissionsByATId(int ATId)
             => _majorRepository.GetMajorAdmissionsByATId(ATId);
