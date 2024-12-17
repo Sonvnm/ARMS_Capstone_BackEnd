@@ -2,13 +2,17 @@
 using AutoMapper;
 using Data.DTO;
 using Data.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Service.AdmissionTimeSer;
+using Service.MajorSer;
 
-namespace ARMS_API.Controllers.Admission_Council
+namespace ARMS_API.Controllers.AdmissionCouncil
 {
     [Route("api/admission-council/[controller]")]
     [ApiController]
+    //[Authorize(Roles = "AdmissionCouncil")]
     public class AdmissionTimeController : ControllerBase
     {
         private IAdmissionTimeService _admissionTimeService;
@@ -61,15 +65,14 @@ namespace ARMS_API.Controllers.Admission_Council
                 });
             }
         }
-
         [HttpPut("update-admission-time")]
         public async Task<IActionResult> UpdateAdmissionTime(AdmissionTime_Add_DTO admissionTimeDTO)
         {
             try
             {
                 //check data
-                //await _validAdmissionTime.ValidDataAdmissionTimeUpdate
-                //   (admissionTimeDTO);
+                await _validAdmissionTime.ValidDataAdmissionTimeUpdate
+                   (admissionTimeDTO);
                 //mapper
                 AdmissionTime AdmissionTime = _mapper.Map<AdmissionTime>(admissionTimeDTO);
                 await _admissionTimeService.UpdateAdmissionTime(AdmissionTime);
@@ -89,5 +92,6 @@ namespace ARMS_API.Controllers.Admission_Council
                 });
             }
         }
+
     }
 }

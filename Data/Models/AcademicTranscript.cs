@@ -12,7 +12,6 @@ namespace Data.Models
         public Guid SpId { get; set; }
         public string SubjectName { get; set; }
         public decimal SubjectPoint { get; set; }
-        public bool isMajor1 { get; set; }
         public TypeOfAcademicTranscript TypeOfAcademicTranscript { get; set; }
         public StudentProfile? StudentProfile { get; set; }
     }

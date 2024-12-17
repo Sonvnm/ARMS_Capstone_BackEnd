@@ -11,7 +11,7 @@ namespace ARMS_API.ValidData
         private UserInput _userInput;
 
         private IAdmissionInformationService _admissionInformationService;
-        public ValidAdmissionInformation(UserInput userInput,IAdmissionInformationService admissionInformationService)
+        public ValidAdmissionInformation(UserInput userInput, IAdmissionInformationService admissionInformationService)
         {
             _userInput = userInput;
             _admissionInformationService = admissionInformationService;
@@ -34,8 +34,8 @@ namespace ARMS_API.ValidData
                 if (currentIndex == -1)
                     throw new Exception("Thông tin nhập học không tồn tại.");
 
-                if (admissionInformationDTO.FeeRegister<100000)
-                throw new Exception("Phí xét tuyển phải trên 100.000 VND");
+                if (admissionInformationDTO.FeeRegister < 100000)
+                    throw new Exception("Phí xét tuyển phải trên 100.000 VND");
                 if (admissionInformationDTO.FeeAdmission < 100000)
                     throw new Exception("Phí nhập học phải trên 100.000 VND");
 
@@ -71,7 +71,7 @@ namespace ARMS_API.ValidData
                 throw;
             }
         }
-       
+
         internal async Task ValidDataAdmissionInforAdd(AdmissionInformation_Add_DTO admissionInformationDTO, string campusid)
         {
             try
@@ -217,7 +217,7 @@ namespace ARMS_API.ValidData
         //            }
         //        }
 
-                
+
         //    }
         //    }
         //    catch (Exception)

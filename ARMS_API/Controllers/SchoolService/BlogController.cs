@@ -11,7 +11,7 @@ namespace ARMS_API.Controllers.SchoolService
 {
     [Route("api/school-service/[controller]")]
     [ApiController]
-   // [Authorize(Roles = "SchoolService")]
+    // [Authorize(Roles = "SchoolService")]
     public class BlogController : ControllerBase
     {
         private IBlogService _blogService;

@@ -1,4 +1,4 @@
-﻿ using ARMS_API.Helper;
+﻿using ARMS_API.Helper;
 using ARMS_API.ValidData;
 using AutoMapper;
 using Data.DTO;
@@ -67,7 +67,7 @@ namespace ARMS_API.Controllers
             IAccountService accountService,
             IRequestNotificationService requestNotificationService,
             ICampusService campusService,
-            UserManager<Account> userManager, 
+            UserManager<Account> userManager,
             RoleManager<IdentityRole<Guid>> roleManager,
             IAdmissionTimeService admissionTimeService
             )
@@ -259,7 +259,7 @@ namespace ARMS_API.Controllers
                 studentProfile.AdmissionTimeId = response.AdmissionTimeId;
 
                 //add new
-               Guid id =  await _studentProfileService.AddStudentProfile(studentProfile);
+                Guid id = await _studentProfileService.AddStudentProfile(studentProfile);
 
                 // send email
                 var major = await _majorService.GetMajor(registerAdmissionProfileDTO.Major);
@@ -585,7 +585,7 @@ namespace ARMS_API.Controllers
 
                     await _emailService.SendEmailByHTMLAsync(emailRequest);
                 });
-               
+
                 return Ok(new ResponseViewModel()
                 {
                     Status = true,
@@ -707,8 +707,8 @@ namespace ARMS_API.Controllers
             {
 
                 int countProfile = await _studentProfileService.CountAdmissionMajor(major, campus);
-                var majorTarget = await _majorService.GetMajorDetail(major,campus);
-                if(countProfile == majorTarget.Target)
+                var majorTarget = await _majorService.GetMajorDetail(major, campus);
+                if (countProfile == majorTarget.Target)
                 {
                     return BadRequest(new ResponseViewModel()
                     {

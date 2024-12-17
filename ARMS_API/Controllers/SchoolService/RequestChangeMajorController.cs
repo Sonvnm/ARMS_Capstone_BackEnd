@@ -95,7 +95,7 @@ namespace ARMS_API.Controllers.SchoolService
             try
             {
 
-                Request request =await _requestChangeMajorService.GetRequestByID(RequestID);
+                Request request = await _requestChangeMajorService.GetRequestByID(RequestID);
                 request.Status = Reply_Request_DTO.Status;
                 request.Reply = Reply_Request_DTO.Reply;
                 //add new

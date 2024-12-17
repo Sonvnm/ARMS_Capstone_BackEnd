@@ -105,7 +105,7 @@ namespace Data.Seeding
                      CampusId = "Hanoi",
                      Fullname = "Nguyễn Đức Anh",
                      StudentCode = "HWE160153",
-                     MajorId = "HWE",
+                     MajorId="HWE",
                      isAccountActive = true,
                      TypeAccount = TypeAccount.RequestAccountAccept,
                  });

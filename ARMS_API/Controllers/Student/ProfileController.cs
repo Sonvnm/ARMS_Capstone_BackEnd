@@ -16,7 +16,7 @@ namespace ARMS_API.Controllers.Student
     {
         private IAccountService _accountService;
         private readonly IMapper _mapper;
-        public ProfileController( IMapper mapper, IAccountService accountService)
+        public ProfileController(IMapper mapper, IAccountService accountService)
         {
             _mapper = mapper;
             _accountService = accountService;

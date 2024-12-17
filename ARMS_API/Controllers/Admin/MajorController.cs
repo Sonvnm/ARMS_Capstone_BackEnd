@@ -12,7 +12,7 @@ namespace ARMS_API.Controllers.Admin
 {
     [Route("api/admin/[controller]")]
     [ApiController]
-   // [Authorize(Roles ="Admin")]
+    // [Authorize(Roles ="Admin")]
     public class MajorController : ControllerBase
     {
         private IMajorService _majorService;

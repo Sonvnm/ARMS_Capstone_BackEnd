@@ -34,7 +34,7 @@ namespace ARMS_API.Controllers.SchoolService
         public async Task<IActionResult> AddStudentConsultation([FromBody] List<StudentConsultationDTO> studentConsultationDTOs)
         {
             var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-            
+
             var invalidObjects = new List<object>(); // Lưu các object bị lỗi
             var validObjects = new List<StudentConsultationDTO>(); // Lưu các object hợp lệ
 
@@ -273,7 +273,7 @@ namespace ARMS_API.Controllers.SchoolService
                         var campusCell = errorSheet.Cells[i + 2, 6];
                         errorSheet.Cells[i + 2, 7].Value = error.Error;
 
-                        var campusRange = string.Join(",", campusIds); 
+                        var campusRange = string.Join(",", campusIds);
                         var validation = campusCell.DataValidation.AddListDataValidation();
                         validation.Formula.Values.Add(campusRange);
 
@@ -289,13 +289,13 @@ namespace ARMS_API.Controllers.SchoolService
                 }
                 else
                 {
-                return Ok(new
-                {
-                    Status = true,
-                    Message = "Xử lý hoàn tất!",
-                    TotalProcessed = validObjects.Count,
-                    TotalErrors = invalidObjects.Count
-                });
+                    return Ok(new
+                    {
+                        Status = true,
+                        Message = "Xử lý hoàn tất!",
+                        TotalProcessed = validObjects.Count,
+                        TotalErrors = invalidObjects.Count
+                    });
 
                 }
 

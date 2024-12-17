@@ -170,7 +170,7 @@ namespace ARMS_API.Config
                 config.CreateMap<Account_RequestChangeMajor_DTO, Account>();
                 config.CreateMap<Account, Account_RequestChangeMajor_DTO>();
 
-                
+
                 config.CreateMap<Account_Major_DTO, Account>();
                 config.CreateMap<Account, Account_Major_DTO>();
                 //request change major for student

@@ -2,14 +2,19 @@
 using AutoMapper;
 using Data.DTO;
 using Data.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Service.AdmissionInformationSer;
+using Service.AdmissionTimeSer;
 using Service.CampusSer;
+using System.Collections.Generic;
 
-namespace ARMS_API.Controllers.Admission_Council
+namespace ARMS_API.Controllers.AdmissionCouncil
 {
     [Route("api/admission-council/[controller]")]
     [ApiController]
+    //[Authorize(Roles = "AdmissionCouncil")]
     public class AdmissionInformationController : ControllerBase
     {
         private IAdmissionInformationService _admissionInformationService;
@@ -23,6 +28,7 @@ namespace ARMS_API.Controllers.Admission_Council
             _campusService = campusService;
             _validAdmissionInformation = validAdmissionInformation;
         }
+        [HttpGet("get-admission-information")]
         public async Task<IActionResult> GetAdmissionInformation(string CampusId)
         {
             try
@@ -105,6 +111,5 @@ namespace ARMS_API.Controllers.Admission_Council
                 }));
             }
         }
-
     }
 }

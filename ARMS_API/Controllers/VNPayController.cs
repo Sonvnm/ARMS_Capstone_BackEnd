@@ -22,7 +22,7 @@ namespace ARMS_API.Controllers
         private readonly IAdmissionInformationService _admissionInformationService;
         private readonly IConfiguration _configuration;
 
-        public VNPayController(IVnPayService vnPayService,IAdmissionInformationService admissionInformationService, IMajorService majorService, IConfiguration configuration)
+        public VNPayController(IVnPayService vnPayService, IAdmissionInformationService admissionInformationService, IMajorService majorService, IConfiguration configuration)
         {
             _vnPayService = vnPayService;
             _admissionInformationService = admissionInformationService;
@@ -67,7 +67,7 @@ namespace ARMS_API.Controllers
                     Message = "Đã xảy ra lỗi! Vui lòng thử lại sau!"
                 });
             }
-           
+
         }
         [HttpGet("vnpay_return")]
         public IActionResult VNPayReturn()

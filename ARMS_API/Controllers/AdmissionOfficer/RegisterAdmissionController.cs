@@ -24,7 +24,7 @@ namespace ARMS_API.Controllers.AdmissionOfficer
         private ValidRegisterAdmission _validInput;
         private UserInput _userInput;
         private readonly IEmailService _emailService;
-        public RegisterAdmissionController(IStudentProfileService studentProfileService, IMapper mapper, ValidRegisterAdmission validInput, UserInput userInput,IEmailService emailService)
+        public RegisterAdmissionController(IStudentProfileService studentProfileService, IMapper mapper, ValidRegisterAdmission validInput, UserInput userInput, IEmailService emailService)
         {
             _studentProfileService = studentProfileService;
             _mapper = mapper;
@@ -69,7 +69,7 @@ namespace ARMS_API.Controllers.AdmissionOfficer
                 }
                 if (TypeofStatus != null)
                 {
-                    response = response.Where(x=>x.TypeofStatusProfile == TypeofStatus).ToList();
+                    response = response.Where(x => x.TypeofStatusProfile == TypeofStatus).ToList();
                 }
 
                 //mapper
@@ -119,7 +119,7 @@ namespace ARMS_API.Controllers.AdmissionOfficer
             try
             {
                 StudentProfile responeResult = _mapper.Map<StudentProfile>(AdmissionProfile_DTO);
-                if (AdmissionProfile_DTO.TypeofStatusMajor1 == TypeofStatusForMajor.Fail )
+                if (AdmissionProfile_DTO.TypeofStatusMajor1 == TypeofStatusForMajor.Fail)
                 {
                     responeResult.TypeofStatusMajor = TypeofStatusForMajor.Fail;
                     responeResult.TypeofStatusProfile = TypeofStatus.Done;
